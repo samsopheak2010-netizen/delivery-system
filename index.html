@@ -3,861 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ប្រព័ន្ធគ្រប់គ្រងអតិថិជន និងការដឹកជញ្ជូន (Google Sheets Sync)</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    
+    <title>Delivery & Customer Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruuy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;600;700&display=swap');
-        body { font-family: 'Kantumruy Pro', sans-serif; }
-        .suggestion-box { max-height: 180px; overflow-y: auto; z-index: 50; }
+        body { font-family: 'Kantumruuy Pro', sans-serif; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen text-gray-800">
+<body class="bg-gray-100 min-h-screen p-2 sm:p-4">
 
-    <div id="authSection" class="max-w-md mx-auto mt-20 p-6 bg-white rounded-xl shadow-lg border border-gray-100">
-        <h2 class="text-2xl font-bold text-center text-indigo-600 mb-6">🚚 Delivery & Customer Manager</h2>
-        <div class="flex border-b mb-4">
-            <button onclick="switchTab('login')" id="tabLoginBtn" class="w-1/2 pb-2 text-center font-semibold border-b-2 border-indigo-500 text-indigo-600">🔒 ចូលប្រើប្រាស់</button>
-            <button onclick="switchTab('register')" id="tabRegisterBtn" class="w-1/2 pb-2 text-center font-semibold text-gray-500 border-b-2 border-transparent">📝 ចុះឈ្មោះ</button>
-        </div>
+    <div id="loginContainer" class="bg-white p-6 sm:p-8 rounded-xl shadow-lg max-w-md w-full border border-gray-200 mx-auto mt-10">
+        <h2 class="text-xl sm:text-2xl font-bold text-center text-indigo-600 mb-6 flex items-center justify-center gap-2">
+            🚚 Delivery & Customer Manager
+        </h2>
         
-        <div id="loginForm">
-            <div class="mb-4"><label class="block text-sm font-medium mb-1">ឈ្មោះអ្នកប្រើប្រាស់</label><input type="text" id="loginUser" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500"></div>
-            <div class="mb-6"><label class="block text-sm font-medium mb-1">លេខសម្ងាត់</label><input type="password" id="loginPass" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500"></div>
-            <button onclick="handleLogin()" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">🔑 ចូលប្រើប្រាស់</button>
+        <div class="flex border-b border-gray-200 mb-6">
+            <button class="w-1/2 pb-2 text-center font-semibold text-indigo-600 border-b-2 border-indigo-600">🔒 ចូលប្រើប្រាស់</button>
+            <button class="w-1/2 pb-2 text-center font-semibold text-gray-400 cursor-not-allowed" disabled>📝 ចុះឈ្មោះ</button>
         </div>
-        
-        <div id="registerForm" class="hidden">
-            <div class="mb-4"><label class="block text-sm font-medium mb-1">ឈ្មោះអ្នកប្រើប្រាស់ថ្មី</label><input type="text" id="regUser" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500"></div>
-            <div class="mb-4"><label class="block text-sm font-medium mb-1">លេខសម្ងាត់</label><input type="password" id="regPass" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500"></div>
-            <div class="mb-6">
-                <label class="block text-sm font-medium mb-1">ជ្រើសរើសតួនាទី (Role) *</label>
-                <select id="regRole" class="w-full px-3 py-2 border rounded-md bg-white text-sm focus:outline-indigo-500">
-                    <option value="Admin">⭐ Admin (គ្រប់គ្រងទូទៅ)</option>
-                    <option value="Stock">📦 Stock (ផ្នែកស្តុកទំនិញ)</option>
-                    <option value="Delivery">🚚 Delivery (ផ្នែកដឹកជញ្ជូន)</option>
-                </select>
+
+        <div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">ឈ្មោះអ្នកប្រើប្រាស់</label>
+                <input type="text" id="loginUser" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="admin">
             </div>
-            <button onclick="handleRegister()" class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">➕ ចុះឈ្មោះគណនី</button>
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">លេខសម្ងាត់</label>
+                <input type="password" id="loginPass" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="123456">
+            </div>
+            <button onclick="handleLogin()" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition flex items-center justify-center gap-2">
+                🔑 ចូលប្រើប្រាស់
+            </button>
         </div>
     </div>
 
-    <div id="mainSection" class="hidden container mx-auto p-4 max-w-7xl">
-        <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm mb-6 border border-gray-100">
+    <div id="appContainer" class="hidden w-full max-w-4xl bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-200 mx-auto mt-4">
+        <div class="flex flex-wrap justify-between items-center border-b pb-4 mb-4 gap-2">
             <div>
-                <h1 class="text-xl font-bold text-gray-800">📦 ប្រព័ន្ធគ្រប់គ្រងទិន្នន័យអតិថិជន និងការដឹក</h1>
-                <div class="flex items-center gap-2 mt-1">
-                    <p class="text-sm text-gray-500">គណនី៖ <span id="currentUserDisplay" class="font-bold text-indigo-600"></span></p>
-                    <span id="currentUserRoleBadge" class="text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
-                    <span id="syncStatus" class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded border">🔄 មិនទាន់ភ្ជាប់</span>
+                <h1 class="text-lg sm:text-xl font-bold text-gray-800">ប្រព័ន្ធគ្រប់គ្រងទិន្នន័យអតិថិជន និងការដឹកជញ្ជូន</h1>
+                <div class="flex flex-wrap items-center gap-2 mt-1 text-xs sm:text-sm text-gray-600">
+                    <span>គណនី៖ <strong id="userDisplay" class="text-indigo-600">...</strong></span>
+                    <span class="bg-purple-100 text-purple-700 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium">Admin</span>
+                    <span id="syncStatus" class="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded border border-yellow-300">🔄 កំពុងត្រៀម...</span>
                 </div>
             </div>
-            <button onclick="handleLogout()" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-600 transition">🚪 ចាកចេញ</button>
+            <button onclick="handleLogout()" class="bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium hover:bg-red-600 transition">
+                🚪 ចាកចេញ
+            </button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="space-y-6">
-                <div id="invoiceFormContainer" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 h-fit">
-                    <h3 id="formTitle" class="text-lg font-bold border-b pb-2 mb-4 text-gray-700">📝 បង្កើតទិន្នន័យអតិថិជនថ្មី</h3>
-                    
-                    <input type="hidden" id="editIndex" value="">
-
-                    <div class="mb-3 relative">
-                        <label class="block text-sm font-medium mb-1">លេខវិក្កយបត្រ (Invoice ID) *</label>
-                        <input type="text" id="invId" oninput="handleIdInput(this.value)" autocomplete="off" class="w-full px-3 py-2 border rounded-md focus:outline-indigo-500 font-bold uppercase" placeholder="ឧ. INKK-08693">
-                        <div id="idSuggestions" class="hidden absolute left-0 right-0 bg-white border rounded-md shadow-lg suggestion-box mt-1"></div>
-                    </div>
-                    
-                    <div class="mb-3 relative">
-                        <label class="block text-sm font-medium mb-1">ឈ្មោះអតិថិជន *</label>
-                        <input type="text" id="custName" oninput="handleNameInput(this.value)" autocomplete="off" class="w-full px-3 py-2 border rounded-md focus:outline-indigo-500">
-                        <div id="nameSuggestions" class="hidden absolute left-0 right-0 bg-white border rounded-md shadow-lg suggestion-box mt-1"></div>
-                    </div>
-
-                    <div class="mb-3"><label class="block text-sm font-medium mb-1">លេខទូរស័ព្ទ</label><input type="text" id="custPhone" class="w-full px-3 py-2 border rounded-md focus:outline-indigo-500"></div>
-                    
-                    <div class="mb-3">
-                        <label class="block text-sm font-medium mb-1">ឈ្មោះអ្នកដឹក (Driver)</label>
-                        <select id="driverName" class="w-full px-3 py-2 border rounded-md bg-white text-sm focus:outline-indigo-500"></select>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2 mb-3">
-                        <div>
-                            <label class="block text-sm font-medium mb-1">ទឹកប្រាក់ ($) *</label>
-                            <input type="number" id="invAmount" value="0.00" step="0.01" class="w-full px-3 py-2 border rounded-md focus:outline-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-1">ការទូទាត់</label>
-                            <select id="payStatus" class="w-full px-3 py-2 border rounded-md bg-white text-sm">
-                                <option value="Unpaid">មិនទាន់ទូទាត់</option>
-                                <option value="Paid">ទូទាត់រួច</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="mb-3 border p-3 rounded-lg bg-gray-50 space-y-2.5">
-                        <label class="block text-xs font-bold text-indigo-700 uppercase">📍 កំណត់/កែប្រែទីតាំងអតិថិជន</label>
-                        <div>
-                            <div class="flex gap-1.5">
-                                <input type="text" id="searchMapQuery" placeholder="វាយឈ្មោះទីតាំង... រួចចុច Search" class="w-full px-2.5 py-1.5 border rounded text-xs bg-white focus:outline-indigo-500">
-                                <button type="button" onclick="searchOnGoogleMaps()" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded text-xs font-bold shrink-0 transition">🔍 Search</button>
-                            </div>
-                        </div>
-                        <div>
-                            <input type="text" id="mapsLinkInput" oninput="extractCoordsFromLink()" placeholder="ផាស Link ពី Google Maps នៅទីនេះ..." class="w-full px-2.5 py-1.5 border rounded text-xs bg-white focus:outline-indigo-500">
-                        </div>
-                        <div class="flex gap-2 items-center pt-1 border-t border-gray-200">
-                            <input type="text" id="invLocation" placeholder="កូអរដោនេ ឬសញ្ញាសម្គាល់ទីតាំង" class="w-full px-2 py-1.5 border rounded text-xs bg-gray-200 font-mono text-gray-600" readonly>
-                            <button type="button" onclick="getCurrentGPS()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1.5 rounded text-xs font-bold shrink-0 transition">📍 GPS</button>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="block text-sm font-medium mb-1">ការស្នើសុំ / បញ្ហាផ្សេងៗ</label>
-                        <textarea id="invIssue" rows="2" placeholder="ព័ត៌មានបន្ថែម..." class="w-full px-3 py-2 border rounded-md text-sm focus:outline-indigo-500"></textarea>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium mb-1">ស្ថានភាពដឹកជញ្ជូន</label>
-                        <select id="invStatus" class="w-full px-3 py-2 border rounded-md bg-white">
-                            <option value="Stock">📦 នៅផ្នែកស្តុក (In Stock)</option>
-                            <option value="Preparing">⏳ ផ្នែករៀបចំ (Preparing)</option>
-                            <option value="Shipping">🚚 កំពុងដឹក (Shipping)</option>
-                            <option value="Delivered">✅ ដឹករួចរាល់ (Delivered)</option>
-                            <option value="Returned">❌ ភ្ញៀវបដិសេធ (Returned)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="flex gap-2">
-                        <button onclick="saveInvoice()" id="btnSave" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">💾 រក្សាទុក</button>
-                        <button onclick="resetForm()" id="btnCancel" class="hidden w-1/3 bg-gray-300 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-400 transition">បោះបង់</button>
-                    </div>
-                </div>
-
-                <div id="driverManagerContainer" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 h-fit">
-                    <h3 class="text-md font-bold border-b pb-2 mb-3 text-gray-700">🛵 គ្រប់គ្រងឈ្មោះអ្នកដឹក (Drivers)</h3>
-                    <div id="driverFormArea" class="flex gap-1.5 mb-3">
-                        <input type="hidden" id="editDriverIndex" value="">
-                        <input type="text" id="driverInputName" placeholder="បញ្ចូលឈ្មោះអ្នកដឹកថ្មី..." class="w-full px-3 py-1.5 border rounded-md text-sm focus:outline-indigo-500">
-                        <button onclick="saveDriver()" id="btnSaveDriver" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-md text-xs font-bold transition">បន្ថែម</button>
-                        <button onclick="resetDriverForm()" id="btnCancelDriver" class="hidden bg-gray-300 hover:bg-gray-400 text-gray-700 px-2 py-1.5 rounded-md text-xs font-bold transition">បោះបង់</button>
-                    </div>
-                    <div id="driverListContainer" class="space-y-1.5 max-h-40 overflow-y-auto pr-1"></div>
-                </div>
-            </div>
-
-            <div class="lg:col-span-2 space-y-4">
-                <div id="reportAndImportContainer" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
-                        <h4 class="text-xs font-bold text-indigo-900 mb-2">📊 ទាញរបាយការណ៍ប្រចាំថ្ងៃ ខែ ឆ្នាំ</h4>
-                        <div class="grid grid-cols-2 gap-1.5 items-end">
-                            <div class="col-span-2">
-                                <input type="date" id="reportDate" class="w-full px-2 py-1 bg-white border rounded text-xs">
-                            </div>
-                            <div>
-                                <select id="reportFilterType" class="w-full px-2 py-1 bg-white border rounded text-xs">
-                                    <option value="day">📆 តាមថ្ងៃ</option>
-                                    <option value="month">📅 តាមខែ</option>
-                                    <option value="year">🗓️ តាមឆ្នាំ</option>
-                                </select>
-                            </div>
-                            <div class="flex gap-1">
-                                <button onclick="exportToExcel()" class="w-1/2 bg-green-600 text-white text-[11px] py-1 rounded font-bold cursor-pointer">Excel</button>
-                                <button onclick="exportToPDF()" class="w-1/2 bg-red-600 text-white text-[11px] py-1 rounded font-bold cursor-pointer">PDF</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="excelImportBox" class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex flex-col justify-between">
-                        <div>
-                            <h4 class="text-xs font-bold text-emerald-900 mb-1">📥 នាំចូលវិក្កយបត្រស្វ័យប្រវត្តិ (Excel/CSV)</h4>
-                            <p class="text-[10px] text-emerald-700 mb-2">ប្រព័ន្ធនឹងអាន Column: <b>Invoice No.</b>, <b>Customer Name</b>, <b>Invoice Amount</b></p>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelUpload(event)">
-                            <button onclick="document.getElementById('excelFileInput').click()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2 rounded-lg font-bold transition text-center cursor-pointer">📁 ជ្រើសរើសឯកសាររួច Upload</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                    <div class="border-b pb-4 mb-4 flex flex-col gap-3">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full relative">
-                            <div class="relative">
-                                <input type="text" id="searchQuery" oninput="handleSearchInput(this.value)" placeholder="🔍 ស្វែងរកតាមឈ្មោះ, លេខកូដ, អ្នកដឹក..." class="w-full px-3 py-2 border rounded-md text-sm" autocomplete="off">
-                                <div id="searchSuggestions" class="hidden absolute left-0 right-0 bg-white border rounded-md shadow-xl mt-1 suggestion-box border-gray-200"></div>
-                            </div>
-                            
-                            <select id="filterStatus" onchange="currentPage=1; renderInvoices()" class="px-3 py-2 border rounded-md bg-white text-sm">
-                                <option value="All">បង្ហាញគ្រប់ស្ថានភាពទាំងអស់</option>
-                                <option value="Stock">📦 ផ្នែកស្តុក (In Stock)</option>
-                                <option value="Preparing">⏳ ផ្នែករៀបចំ (Preparing)</option>
-                                <option value="Shipping">🚚 កំពុងដឹក (Shipping)</option>
-                                <option value="Delivered">✅ ដឹករួចរាល់ (Delivered)</option>
-                                <option value="Returned">❌ ភ្ញៀវបដិសេធ (Returned)</option>
-                            </select>
-                        </div>
-
-                        <div class="flex flex-wrap justify-between items-center gap-2 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
-                            <div class="flex items-center gap-2 text-xs font-semibold text-gray-600">
-                                <span>📄 បង្ហាញ៖</span>
-                                <select id="rowsPerPageSelect" onchange="changeRowsPerPage(this.value)" class="bg-white border rounded px-2 py-1 text-xs focus:outline-indigo-500 font-bold text-gray-700">
-                                    <option value="5">5 ជួរ</option>
-                                    <option value="10">10 ជួរ</option>
-                                    <option value="20">20 ជួរ</option>
-                                    <option value="all">ទាំងអស់ (All)</option>
-                                </select>
-                            </div>
-                            <div class="text-xs font-bold text-gray-500 bg-white px-2.5 py-1 rounded border border-gray-200">
-                                សរុប៖ <span id="totalInvoiceCount" class="text-indigo-600 text-sm">0</span> វិក្កយបត្រ
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse text-sm">
-                            <thead>
-                                <tr class="bg-gray-50 border-b">
-                                    <th class="p-3 font-bold text-gray-600">អតិថិជន / វិក្កយបត្រ</th>
-                                    <th class="p-3 font-bold text-gray-600">តម្លៃ / ការទូទាត់</th>
-                                    <th class="p-3 font-bold text-gray-600">Pin ទីតាំង / អ្នកដឹក</th>
-                                    <th class="p-3 font-bold text-gray-600">កាលបរិច្ឆេទបង្កើត</th>
-                                    <th class="p-3 font-bold text-gray-600 text-center">សកម្មភាព</th>
-                                </tr>
-                            </thead>
-                            <tbody id="invoiceTableBody"></tbody>
-                        </table>
-                    </div>
-
-                    <div id="paginationContainer" class="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
-                        <div class="text-xs text-gray-500 font-medium">
-                            បង្ហាញទំព័រ <span id="txtCurrentPage" class="font-bold text-gray-700">1</span> នៃ <span id="txtTotalPages" class="font-bold text-gray-700">1</span>
-                        </div>
-                        <div class="flex gap-1">
-                            <button onclick="changePage(-1)" id="btnPrevPage" class="px-3 py-1 text-xs font-bold bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-40 transition cursor-pointer">◀ ថយក្រោយ</button>
-                            <button onclick="changePage(1)" id="btnNextPage" class="px-3 py-1 text-xs font-bold bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-40 transition cursor-pointer">ទៅមុខ ▶</button>
-                        </div>
-                    </div>
-                </div>
+        <div class="mt-4">
+            <h3 class="text-md font-bold text-gray-700 mb-2">📋 បញ្ជីទិន្នន័យពី Google Sheets</h3>
+            <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ល.រ</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ឈ្មោះអតិថិជន</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">លេខទូរស័ព្ទ</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ស្ថានភាពដឹកជញ្ជូន</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoiceTableBody" class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td colspan="4" class="px-4 py-4 text-center text-gray-400">🔄 កំពុងរង់ចាំទាញទិន្នន័យ...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        // === 1. កំណត់ Google App Script URL នៅទីនេះ ===
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwe1s4QDH8Ti_NUIwd2o2BwaHYy_GRLVTG_Hz19mrVkyhnhaP1XQQQtuolXbkj6qkQFLg/exec"; 
+        // 🔗 ដំណភ្ជាប់ Google Apps Script Web App របស់អ្នក
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwe1s4QDH8Ti_NUIwd2o2BwaHyY_GRLVTG_Hz19mrVkyhnhaP1XQQQtuo1Xbkj6qkQFLg/exec"; 
 
-        let currentCoordinates = "";
-        let currentPage = 1;
-        let rowsPerPage = 5; 
         let currentUserRole = "Admin"; 
 
-        document.getElementById('reportDate').value = new Date().toISOString().substring(0, 10);
+        // ដំណើរការដំបូងពេលបើកទំព័រ App
+        window.onload = function() {
+            // ព្យាយាមទាញទិន្នន័យទុកជាមុន
+            fetchInvoicesFromGoogleSheets();
+        };
 
-        // មុខងារទាញទិន្នន័យពី Google Sheets មកបង្ហាញឡើងវិញពេលបើក App
-        async function fetchInvoicesFromGoogleSheets() {
-            if(!SCRIPT_URL || SCRIPT_URL.includes("YOUR_GOOGLE_SCRIPT_URL_HERE")) return;
-            const statusBox = document.getElementById('syncStatus');
-            statusBox.innerHTML = "🔄 កំពុងទាញទិន្នន័យ...";
-            try {
-                const response = await fetch(SCRIPT_URL + "?action=read");
-                const data = await response.json();
-                if(data && Array.isArray(data)) {
-                    localStorage.setItem('invoices', JSON.stringify(data));
-                    renderInvoices();
-                    statusBox.innerHTML = "✅ Google Sheets Sync";
-                    statusBox.className = "text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded border border-green-300";
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                statusBox.innerHTML = "❌ មិនអាចទាញទិន្នន័យបាន";
-                statusBox.className = "text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded border border-red-300";
-            }
-        }
-
-        // មុខងារផ្ញើទិន្នន័យទៅរក្សាទុកនៅលើ Google Sheets
-        async function syncToGoogleSheets(actionType, invoiceData) {
-            if(!SCRIPT_URL || SCRIPT_URL.includes("YOUR_GOOGLE_SCRIPT_URL_HERE")) return;
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: actionType, data: invoiceData })
-                });
-            } catch (error) {
-                console.error("Error syncing to Google Sheets:", error);
-            }
-        }
-
-        function handleExcelUpload(event) {
-            if (currentUserRole === 'Delivery') return alert("⚠️ អ្នកគ្មានសិទ្ធិប្រើប្រាស់មុខងារនេះទេ!");
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
-                
-                const rows = XLSX.utils.sheet_to_json(worksheet);
-                if (rows.length === 0) return alert("ឯកសារគ្មានទិន្នន័យទេ!");
-
-                let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-                const rightNow = new Date().toISOString(); 
-                let addedCount = 0;
-                let skippedCount = 0;
-
-                for (let row of rows) {
-                    let idKey = Object.keys(row).find(k => k.trim().toLowerCase() === 'invoice no.' || k.trim().toLowerCase() === 'invoice no');
-                    let nameKey = Object.keys(row).find(k => k.trim().toLowerCase() === 'customer name' || k.trim().toLowerCase() === 'customer');
-                    let amountKey = Object.keys(row).find(k => k.trim().toLowerCase() === 'invoice amount' || k.trim().toLowerCase() === 'amount');
-
-                    const id = idKey ? (row[idKey] || '').toString().trim().toUpperCase() : '';
-                    const name = nameKey ? (row[nameKey] || '').toString().trim() : '';
-                    let amountRaw = amountKey ? row[amountKey] : 0;
-                    
-                    if (typeof amountRaw === 'string') {
-                        amountRaw = amountRaw.replace(/[^0-9.-]/g, '');
-                    }
-                    const amount = parseFloat(amountRaw) || 0;
-
-                    if (id && name) {
-                        const isExist = invoices.some(inv => inv.id === id);
-                        if (!isExist) {
-                            const newInv = {
-                                id: id, name: name, phone: '', driver: '', amount: amount,
-                                payment: 'Unpaid', issue: '', status: 'Stock', location: '', dateCreated: rightNow 
-                            };
-                            invoices.push(newInv);
-                            await syncToGoogleSheets("create", newInv);
-                            addedCount++;
-                        } else {
-                            skippedCount++;
-                        }
-                    }
-                }
-
-                localStorage.setItem('invoices', JSON.stringify(invoices));
-                currentPage = 1; 
-                renderInvoices();
-                alert(`🎯 ដំណើរការរួចរាល់!\n- បានបញ្ចូលជោគជ័យ៖ ${addedCount} វិក្កយបត្រ\n- បានរំលង (មានរួចហើយ)៖ ${skippedCount} វិក្កយបត្រ`);
-                document.getElementById('excelFileInput').value = ''; 
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function changeRowsPerPage(value) {
-            if (value === 'all') { rowsPerPage = 999999; } else { rowsPerPage = parseInt(value); }
-            currentPage = 1; renderInvoices();
-        }
-
-        function handleSearchInput(val) {
-            currentPage = 1; renderInvoices();
-            const sugBox = document.getElementById('searchSuggestions');
-            const search = val.toLowerCase().trim();
-            if (!search) { sugBox.classList.add('hidden'); return; }
-
-            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-            let matches = invoices.filter(inv => inv.id.toLowerCase().includes(search) || inv.name.toLowerCase().includes(search));
-
-            if (matches.length > 0) {
-                sugBox.innerHTML = matches.map(inv => `
-                    <div onclick="selectSearchSuggestion('${inv.id}')" class="p-2.5 hover:bg-indigo-50 border-b border-gray-50 cursor-pointer text-xs flex justify-between items-center transition">
-                        <div>
-                            <span class="font-bold text-indigo-600 block">🆔 ${inv.id}</span>
-                            <span class="text-gray-600 font-medium">${inv.name}</span>
-                        </div>
-                        <span class="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">$${inv.amount.toFixed(2)}</span>
-                    </div>
-                `).join('');
-                sugBox.classList.remove('hidden');
-            } else { sugBox.classList.add('hidden'); }
-        }
-
-        function selectSearchSuggestion(id) {
-            document.getElementById('searchQuery').value = id;
-            document.getElementById('searchSuggestions').classList.add('hidden');
-            currentPage = 1; renderInvoices();
-        }
-
-        document.addEventListener('click', function(e) {
-            if (e.target.id !== 'searchQuery') document.getElementById('searchSuggestions').classList.add('hidden');
-        });
-
-        function changePage(direction) { currentPage += direction; renderInvoices(); }
-
-        function getDrivers() {
-            let drivers = JSON.parse(localStorage.getItem('drivers'));
-            if (!drivers || drivers.length === 0) {
-                drivers = ["អ្នកដឹក ភារម្យ", "អ្នកដឹក វិសាល", "អ្នកដឹក សុជាតិ"];
-                localStorage.setItem('drivers', JSON.stringify(drivers));
-            }
-            return drivers;
-        }
-
-        function renderDrivers() {
-            const drivers = getDrivers();
-            const container = document.getElementById('driverListContainer');
-            const selectDropdown = document.getElementById('driverName');
-            const showActions = (currentUserRole === 'Admin');
-
-            container.innerHTML = drivers.map((driver, index) => `
-                <div class="flex justify-between items-center bg-gray-50 p-2 border rounded-md text-xs">
-                    <span class="font-medium text-gray-700">🛵 ${driver}</span>
-                    ${showActions ? `
-                    <div class="flex gap-1">
-                        <button onclick="editDriver(${index})" class="text-blue-600 hover:text-blue-800 font-bold px-1">កែ</button>
-                        <button onclick="deleteDriver(${index})" class="text-red-500 hover:text-red-700 font-bold px-1">លុប</button>
-                    </div>` : ''}
-                </div>
-            `).join('');
-            selectDropdown.innerHTML = `<option value="">-- មិនទាន់មានអ្នកដឹក --</option>` + drivers.map(d => `<option value="${d}">${d}</option>`).join('');
-        }
-
-        function saveDriver() {
-            if (currentUserRole !== 'Admin') return alert("⚠️ មានតែ Admin ទេ ទើបអាចគ្រប់គ្រងអ្នកដឹកបាន!");
-            const name = document.getElementById('driverInputName').value.trim();
-            if (!name) return alert("សូមបញ្ចូលឈ្មោះអ្នកដឹក!");
-            let drivers = getDrivers();
-            const editIdx = document.getElementById('editDriverIndex').value;
-
-            if (editIdx === "") {
-                if (drivers.includes(name)) return alert("ឈ្មោះអ្នកដឹកនេះមានរួចហើយ!");
-                drivers.push(name);
-            } else { drivers[parseInt(editIdx)] = name; }
-            localStorage.setItem('drivers', JSON.stringify(drivers));
-            resetDriverForm(); renderDrivers(); renderInvoices();
-        }
-
-        function editDriver(index) {
-            const drivers = getDrivers();
-            document.getElementById('driverInputName').value = drivers[index];
-            document.getElementById('editDriverIndex').value = index;
-            document.getElementById('btnSaveDriver').innerText = "ធ្វើបច្ចុប្បន្នភាព";
-            document.getElementById('btnCancelDriver').classList.remove('hidden');
-        }
-
-        function deleteDriver(index) {
-            if(confirm("តើអ្នកប្រាកដជាចង់លុបអ្នកដឹកនេះមែនទេ?")) {
-                let drivers = getDrivers(); drivers.splice(index, 1);
-                localStorage.setItem('drivers', JSON.stringify(drivers));
-                resetDriverForm(); renderDrivers(); renderInvoices();
-            }
-        }
-
-        function resetDriverForm() {
-            document.getElementById('driverInputName').value = ""; document.getElementById('editDriverIndex').value = "";
-            document.getElementById('btnSaveDriver').innerText = "បន្ថែម"; document.getElementById('btnCancelDriver').classList.add('hidden');
-        }
-
-        function handleIdInput(val) {
-            val = val.toUpperCase(); document.getElementById('invId').value = val;
-            const suggestions = document.getElementById('idSuggestions');
-            if(!val) { suggestions.classList.add('hidden'); return; }
-            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-            let matches = [...new Set(invoices.map(i => i.id).filter(id => id.includes(val)))];
-            if(matches.length > 0) {
-                suggestions.innerHTML = matches.map(m => `<div onclick="selectFormSuggestion('invId', '${m}', 'idSuggestions')" class="p-2 hover:bg-gray-100 cursor-pointer text-sm font-bold uppercase">${m}</div>`).join('');
-                suggestions.classList.remove('hidden');
-            } else { suggestions.classList.add('hidden'); }
-        }
-
-        function handleNameInput(val) {
-            const suggestions = document.getElementById('nameSuggestions');
-            if(!val) { suggestions.classList.add('hidden'); return; }
-            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-            let matches = [...new Set(invoices.map(i => i.name).filter(name => name.toLowerCase().includes(val.toLowerCase())))];
-            if(matches.length > 0) {
-                suggestions.innerHTML = matches.map(m => `<div onclick="selectFormSuggestion('custName', '${m}', 'nameSuggestions')" class="p-2 hover:bg-gray-100 cursor-pointer text-sm">${m}</div>`).join('');
-                suggestions.classList.remove('hidden');
-            } else { suggestions.classList.add('hidden'); }
-        }
-
-        function selectFormSuggestion(inputId, value, boxId) {
-            document.getElementById(inputId).value = value;
-            document.getElementById(boxId).classList.add('hidden');
-            if(inputId === 'invId' && currentUserRole !== 'Delivery') {
-                let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-                let idx = invoices.findIndex(i => i.id === value);
-                if(idx !== -1) document.editInvoice(idx);
-            }
-        }
-
-        document.deleteInvoice = async function(index) {
-            if (currentUserRole !== 'Admin') return alert("⚠️ មានតែ Admin ទេ ទើបអាចលុបទិន្នន័យបាន!");
-            if(confirm("តើអ្នកពិតជាចង់លុបវិក្កយបត្រនេះមែនទេ?")) {
-                let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-                const targetInv = invoices[index];
-                invoices.splice(index, 1);
-                localStorage.setItem('invoices', JSON.stringify(invoices));
-                resetForm(); renderInvoices();
-                await syncToGoogleSheets("delete", targetInv);
-            }
-        }
-
-        function getFilteredReportData() {
-            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-            const filterType = document.getElementById('reportFilterType').value;
-            const chosenDateStr = document.getElementById('reportDate').value;
-            if(!chosenDateStr) { alert("សូមជ្រើសរើសកាលបរិច្ឆេទ!"); return []; }
-
-            const chosenDate = new Date(chosenDateStr);
-            return invoices.filter(inv => {
-                const invDate = inv.dateCreated ? new Date(inv.dateCreated) : new Date();
-                if(filterType === 'day') {
-                    return invDate.getFullYear() === chosenDate.getFullYear() && invDate.getMonth() === chosenDate.getMonth() && invDate.getDate() === chosenDate.getDate();
-                } else if(filterType === 'month') {
-                    return invDate.getFullYear() === chosenDate.getFullYear() && invDate.getMonth() === chosenDate.getMonth();
-                } else if(filterType === 'year') {
-                    return invDate.getFullYear() === chosenDate.getFullYear();
-                }
-                return true;
-            });
-        }
-
-        function exportToExcel() {
-            const data = getFilteredReportData();
-            if(data.length === 0) return alert("មិនមានទិន្នន័យសម្រាប់ទាញយកទេ!");
-            const excelData = data.map((inv, idx) => ({
-                "ល.រ": idx + 1, "លេខវិក្កយបត្រ": inv.id, "ឈ្មោះអតិថិជន": inv.name, "លេខទូរស័ព្ទ": inv.phone || '-',
-                "ទឹកប្រាក់ ($)": inv.amount, "ការទូទាត់": inv.payment === 'Paid' ? 'ទូទាត់រួច' : 'មិនទាន់ទូទាត់',
-                "អ្នកដឹក (Driver)": inv.driver || 'មិនទាន់មាន', "ស្ថានភាពដឹក": inv.status, "កាលបរិច្ឆេទបង្កើត": inv.dateCreated ? formatKhmerDate(inv.dateCreated) : '-'
-            }));
-            const worksheet = XLSX.utils.json_to_sheet(excelData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
-            XLSX.writeFile(workbook, `Report_${document.getElementById('reportFilterType').value}_${document.getElementById('reportDate').value}.xlsx`);
-        }
-
-        function exportToPDF() {
-            const { jsPDF } = window.jspdf; const doc = new jsPDF();
-            const data = getFilteredReportData();
-            if(data.length === 0) return alert("មិនមានទិន្នន័យសម្រាប់ទាញយកទេ!");
-            doc.text(`Delivery Report (${document.getElementById('reportFilterType').value.toUpperCase()})`, 14, 15);
-            const tableRows = data.map((inv, idx) => [idx + 1, inv.id, inv.name, inv.phone || '-', `$${inv.amount.toFixed(2)}`, inv.payment === 'Paid' ? 'Paid' : 'Unpaid', inv.driver || '-', inv.status]);
-            doc.autoTable({ head: [['No', 'Invoice ID', 'Customer', 'Phone', 'Amount', 'Payment', 'Driver', 'Status']], body: tableRows, startY: 30, styles: { fontSize: 8 } });
-            doc.save(`Report_${document.getElementById('reportDate').value}.pdf`);
-        }
-
-        function formatKhmerDate(isoString) {
-            if(!isoString) return "-";
-            const d = new Date(isoString);
-            return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth()+1).toString().padStart(2, '0')}-${d.getFullYear()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
-        }
-
-        function searchOnGoogleMaps() {
-            const query = document.getElementById('searchMapQuery').value.trim();
-            if (!query) return alert("សូមវាយបញ្ចូលឈ្មោះទីតាំងដែលចង់ស្វែងរក!");
-            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`, '_blank');
-        }
-
-        function getCurrentGPS() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    currentCoordinates = position.coords.latitude + "," + position.coords.longitude;
-                    document.getElementById('invLocation').value = currentCoordinates;
-                    document.getElementById('mapsLinkInput').value = ""; 
-                }, function() { alert("សូមបើកសិទ្ធិ Location!"); });
-            }
-        }
-
-        function extractCoordsFromLink() {
-            const urlString = document.getElementById('mapsLinkInput').value.trim();
-            if (!urlString) { currentCoordinates = ""; document.getElementById('invLocation').value = ""; return; }
-            const regex = /@(-?\d+\.\d+),(-?\d+\.\d+)/; const match = urlString.match(regex);
-            if (match && match[1] && match[2]) {
-                currentCoordinates = match[1] + "," + match[2]; document.getElementById('invLocation').value = currentCoordinates;
-            } else {
-                currentCoordinates = urlString; document.getElementById('invLocation').value = "🔗 ទីតាំងតាមរយៈ Link ផែនទី";
-            }
-        }
-
-        function switchTab(type) {
-            if(type === 'login') {
-                document.getElementById('loginForm').classList.remove('hidden'); document.getElementById('registerForm').classList.add('hidden');
-            } else {
-                document.getElementById('loginForm').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden');
-            }
-        }
-
-        function handleRegister() {
-            const u = document.getElementById('regUser').value.trim(); 
-            const p = document.getElementById('regPass').value.trim();
-            const role = document.getElementById('regRole').value;
-            if(!u || !p) return alert("សូមបំពេញព័ត៌មាន!");
-            
-            let users = JSON.parse(localStorage.getItem('users_v2')) || {};
-            if(users[u.toLowerCase()]) return alert("ឈ្មោះនេះមានរួចហើយ!");
-            
-            users[u.toLowerCase()] = { password: p, role: role, originalName: u };
-            localStorage.setItem('users_v2', JSON.stringify(users));
-            alert("✅ ចុះឈ្មោះគណនីជោគជ័យ ជាមួយតួនាទីជា " + role); switchTab('login');
-        }
-
+        // === 🔑 មុខងារ LOGIN (កែសម្រួលដោះស្រាយការគាំង) ===
         function handleLogin() {
-            const u = document.getElementById('loginUser').value.trim(); 
-            const p = document.getElementById('loginPass').value.trim();
+            const userInput = document.getElementById('loginUser').value.trim();
+            const passInput = document.getElementById('loginPass').value.trim();
             
-            // កែសម្រួលចំណុចនេះ៖ មិនថាវាយ Admin អក្សរតូច ឬធំទេ គឺអាចចូលបានដូចគ្នា
-            if (u.toLowerCase() === "admin" && p === "123456") {
-                localStorage.setItem('currentUser', "admin");
-                localStorage.setItem('currentUserRole', 'Admin');
-                showSystem("admin", 'Admin');
+            if (!userInput || !passInput) {
+                alert("សូមបញ្ចូលឈ្មោះអ្នកប្រើប្រាស់ និងលេខសម្ងាត់!");
                 return;
             }
 
-            let users = JSON.parse(localStorage.getItem('users_v2')) || {};
-            let lookupKey = u.toLowerCase();
-            if(users[lookupKey] && users[lookupKey].password === p) { 
-                localStorage.setItem('currentUser', users[lookupKey].originalName || lookupKey);
-                localStorage.setItem('currentUserRole', users[lookupKey].role);
-                showSystem(users[lookupKey].originalName || lookupKey, users[lookupKey].role); 
-            } else { alert("❌ ឈ្មោះ ឬលេខសម្ងាត់មិនត្រឹមត្រូវ!"); }
-        }
-
-        function handleLogout() {
-            localStorage.removeItem('currentUser'); localStorage.removeItem('currentUserRole');
-            document.getElementById('authSection').classList.remove('hidden'); document.getElementById('mainSection').classList.add('hidden');
-        }
-
-        function applyRolePermissions(role) {
-            currentUserRole = role;
-            const formContainer = document.getElementById('invoiceFormContainer');
-            const driverArea = document.getElementById('driverFormArea');
-            const reportArea = document.getElementById('reportAndImportContainer');
-            const badge = document.getElementById('currentUserRoleBadge');
-
-            badge.innerText = role;
-            if (role === 'Admin') {
-                badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800";
-                formContainer.classList.remove('hidden'); driverArea.classList.remove('hidden'); reportArea.classList.remove('hidden');
-            } else if (role === 'Stock') {
-                badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800";
-                formContainer.classList.remove('hidden'); driverArea.classList.add('hidden'); reportArea.classList.remove('hidden');
-            } else if (role === 'Delivery') {
-                badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800";
-                formContainer.classList.add('hidden'); driverArea.classList.add('hidden'); reportArea.classList.add('hidden');       
-            }
-        }
-
-        function showSystem(username, role) {
-            document.getElementById('authSection').classList.add('hidden'); 
-            document.getElementById('mainSection').classList.remove('hidden');
-            document.getElementById('currentUserDisplay').innerText = username;
-            
-            applyRolePermissions(role);
-            renderDrivers(); 
-            fetchInvoicesFromGoogleSheets(); // រាល់ពេល Login វានឹងទៅទាញទិន្នន័យថ្មីពី Google Sheets
-        }
-
-        async function saveInvoice() {
-            if (currentUserRole === 'Delivery') return alert("⚠️ អ្នកគ្មានសិទ្ធិបង្កើត ឬកែប្រែទិន្នន័យទេ!");
-            const id = document.getElementById('invId').value.trim().toUpperCase();
-            const name = document.getElementById('custName').value.trim();
-            const phone = document.getElementById('custPhone').value.trim();
-            const driver = document.getElementById('driverName').value;
-            const amount = parseFloat(document.getElementById('invAmount').value) || 0;
-            const payment = document.getElementById('payStatus').value;
-            const issue = document.getElementById('invIssue').value.trim();
-            const status = document.getElementById('invStatus').value;
-            const editIdx = document.getElementById('editIndex').value;
-
-            if(!id || !name) return alert("សូមបំពេញ លេខវិក្កយបត្រ និង ឈ្មោះអតិថិជន!");
-            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-            const rightNow = new Date().toISOString();
-
-            let targetInvoice;
-            let actionType = "create";
-
-            if (editIdx === "") {
-                if(invoices.some(inv => inv.id === id)) return alert("លេខកូដវិក្កយបត្រនេះមានរួចហើយ!");
-                targetInvoice = {id, name, phone, driver, amount, payment, issue, status, location: currentCoordinates, dateCreated: rightNow};
-                invoices.push(targetInvoice);
-            } else {
-                const index = parseInt(editIdx);
-                actionType = "update";
-                invoices[index] = { ...invoices[index], id, name, phone, driver, amount, payment, issue, status, location: currentCoordinates !== "" ? currentCoordinates : invoices[index].location };
-                targetInvoice = invoices[index];
-            }
-            localStorage.setItem('invoices', JSON.stringify(invoices)); 
-            resetForm(); renderInvoices();
-            await syncToGoogleSheets(actionType, targetInvoice); // បញ្ជូនទៅ Google Sheets
-        }
-
-        document.editInvoice = function(index) {
-            if (currentUserRole === 'Delivery') return alert("⚠️ អ្នកគ្មានសិទ្ធិកែប្រែទិន្នន័យទេ!");
-            let invoices = JSON.parse(localStorage.getItem('invoices')) || []; const inv = invoices[index];
-            document.getElementById('formTitle').innerText = "✏️ កែប្រែព័ត៌មានអតិថិជន"; document.getElementById('editIndex').value = index;
-            document.getElementById('invId').value = inv.id; document.getElementById('custName').value = inv.name;
-            document.getElementById('custPhone').value = inv.phone || ''; document.getElementById('driverName').value = inv.driver || '';
-            document.getElementById('invAmount').value = inv.amount || 0; document.getElementById('payStatus').value = inv.payment;
-            document.getElementById('invIssue').value = inv.issue || ''; document.getElementById('invStatus').value = inv.status;
-            
-            if(inv.location) {
-                currentCoordinates = inv.location;
-                if(inv.location.startsWith("http")) { document.getElementById('mapsLinkInput').value = inv.location; document.getElementById('invLocation').value = "🔗 ទីតាំងតាមរយៈ Link ផែនទី"; }
-                else { document.getElementById('mapsLinkInput').value = ""; document.getElementById('invLocation').value = inv.location; }
-            } else { currentCoordinates = ""; document.getElementById('mapsLinkInput').value = ""; document.getElementById('invLocation').value = ""; }
-            document.getElementById('btnSave').innerText = "🔄 ធ្វើបច្ចុប្បន្នភាព"; document.getElementById('btnCancel').classList.remove('hidden');
-        }
-
-        function resetForm() {
-            document.getElementById('formTitle').innerText = "📝 បង្កើតទិន្នន័យអតិថិជនថ្មី"; document.getElementById('editIndex').value = "";
-            document.getElementById('invId').value = ''; document.getElementById('custName').value = ''; document.getElementById('custPhone').value = '';
-            document.getElementById('driverName').value = ''; document.getElementById('invAmount').value = '0.00'; document.getElementById('invIssue').value = '';
-            document.getElementById('invLocation').value = ''; document.getElementById('mapsLinkInput').value = ''; document.getElementById('searchMapQuery').value = '';
-            currentCoordinates = ""; document.getElementById('btnSave').innerText = "💾 រក្សាទុក"; document.getElementById('btnCancel').classList.add('hidden');
-        }
-
-        document.togglePayment = async function(id, currentPayment) {
-            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-            let targetInv;
-            invoices = invoices.map(inv => {
-                if(inv.id === id) {
-                    targetInv = {...inv, payment: currentPayment === 'Paid' ? 'Unpaid' : 'Paid'};
-                    return targetInv;
-                }
-                return inv;
-            });
-            localStorage.setItem('invoices', JSON.stringify(invoices)); renderInvoices();
-            if(targetInv) await syncToGoogleSheets("update", targetInv);
-        }
-
-        document.updateStatus = async function(id, newStatus) {
-            if (currentUserRole === 'Stock' && (newStatus === 'Shipping' || newStatus === 'Delivered' || newStatus === 'Returned')) {
-                alert("⚠️ ផ្នែកស្តុក (Stock) អាចប្តូរបានតែស្ថានភាព 'ផ្នែកស្តុក' ឬ 'កំពុងរៀបចំ' ប៉ុណ្ណោះ!");
-                renderInvoices(); return;
-            }
-            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-            let targetInv;
-            invoices = invoices.map(inv => {
-                if(inv.id === id) {
-                    targetInv = {...inv, status: newStatus};
-                    return targetInv;
-                }
-                return inv;
-            });
-            localStorage.setItem('invoices', JSON.stringify(invoices)); renderInvoices();
-            if(targetInv) await syncToGoogleSheets("update", targetInv);
-        }
-
-        function renderInvoices() {
-            const filterStat = document.getElementById('filterStatus').value; 
-            const search = document.getElementById('searchQuery').value.toLowerCase().trim();
-            const tbody = document.getElementById('invoiceTableBody'); tbody.innerHTML = '';
-            
-            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-
-            if(search !== "") {
-                invoices = invoices.filter(inv => inv.name.toLowerCase().includes(search) || inv.id.toLowerCase().includes(search) || (inv.phone && inv.phone.includes(search)) || (inv.driver && inv.driver.toLowerCase().includes(search)));
-            }
-            if(filterStat !== 'All') invoices = invoices.filter(inv => inv.status === filterStat);
-            
-            document.getElementById('totalInvoiceCount').innerText = invoices.length;
-
-            const totalPages = Math.ceil(invoices.length / rowsPerPage) || 1;
-            if (currentPage > totalPages) currentPage = totalPages;
-
-            const paginationContainer = document.getElementById('paginationContainer');
-            if (rowsPerPage >= 999999 || invoices.length <= rowsPerPage) {
-                paginationContainer.classList.add('hidden');
-            } else {
-                paginationContainer.classList.remove('hidden');
-                document.getElementById('txtCurrentPage').innerText = currentPage;
-                document.getElementById('txtTotalPages').innerText = totalPages;
-                document.getElementById('btnPrevPage').disabled = (currentPage === 1);
-                document.getElementById('btnNextPage').disabled = (currentPage === totalPages);
-            }
-
-            if(invoices.length === 0) { 
-                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400">មិនមានទិន្នន័យអតិថិជនទេ។</td></tr>'; return; 
-            }
-
-            const startIndex = (currentPage - 1) * rowsPerPage;
-            const endIndex = startIndex + rowsPerPage;
-            const paginatedInvoices = invoices.slice(startIndex, endIndex);
-
-            paginatedInvoices.forEach((inv, index) => {
-                const actualIndex = startIndex + index;
-
-                let badgeDeliv = "bg-gray-100 text-gray-800"; let statusText = "នៅផ្នែកស្តុក";
-                if(inv.status === 'Preparing') { badgeDeliv = "bg-yellow-100 text-yellow-800"; statusText = "កំពុងរៀបចំ"; }
-                else if(inv.status === 'Shipping') { badgeDeliv = "bg-blue-100 text-blue-800"; statusText = "កំពុងដឹក"; }
-                else if(inv.status === 'Delivered') { badgeDeliv = "bg-green-100 text-green-800"; statusText = "ដឹករួចរាល់"; }
-                else if(inv.status === 'Returned') { badgeDeliv = "bg-red-100 text-red-800"; statusText = "ភ្ញៀវបដិសេធ"; }
-
-                let badgePay = inv.payment === 'Paid' ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
+            if (userInput.toLowerCase() === "admin" && passInput === "123456") {
+                currentUserRole = "Admin";
                 
-                // កែសម្រួលត្រង់ចំណុចបង្កើត Link ផែនទី (ជៀសវាងការគាំង)
-                let mapUrl = inv.location;
-                if(inv.location && !inv.location.startsWith("http")) {
-                    mapUrl = `https://www.google.com/maps/search/?api=1&query=${inv.location}`;
-                }
-                let locationMarkup = inv.location ? `<a href="${mapUrl}" target="_blank" class="inline-flex items-center gap-1 text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200 hover:underline">📍 បើកផែនទី</a>` : '<span class="text-xs text-gray-400">📍 គ្មានទីតាំង</span>';
-                let issueMarkup = inv.issue ? '<p class="text-xs bg-red-50 text-red-700 p-1 rounded mt-1 border border-red-100">⚠️ ' + inv.issue + '</p>' : '';
-                let driverMarkup = inv.driver ? `<span class="text-xs font-semibold block text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100 w-fit mt-1">🛵 ${inv.driver}</span>` : '<span class="text-xs text-gray-400 block mt-1">❌ គ្មានអ្នកដឹក</span>';
+                // បិទផ្ទាំង Login និងបង្ហាញផ្ទាំង App ធំ
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('appContainer').classList.remove('hidden');
+                document.getElementById('userDisplay').innerText = userInput;
+                
+                // ហៅបង្ហាញទិន្នន័យឡើងវិញ
+                renderInvoices();
+            } else {
+                alert("ឈ្មោះអ្នកប្រើប្រាស់ ឬលេខសម្ងាត់មិនត្រឹមត្រូវឡើយ!");
+            }
+        }
 
-                let actionButtons = '';
-                if (currentUserRole === 'Admin') {
-                    actionButtons = `
-                        <button onclick="document.editInvoice(${actualIndex})" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-xs py-1 rounded font-bold transition">✏️ កែ</button>
-                        <button onclick="document.deleteInvoice(${actualIndex})" class="w-full bg-red-500 hover:bg-red-600 text-white text-xs py-1 rounded font-bold transition">🗑️ លុប</button>
-                    `;
-                } else if (currentUserRole === 'Stock') {
-                    actionButtons = `
-                        <button onclick="document.editInvoice(${actualIndex})" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-xs py-1 rounded font-bold transition">✏️ កែ</button>
-                        <button class="w-full bg-gray-300 text-gray-500 text-xs py-1 rounded font-bold cursor-not-allowed" disabled>🗑️ លុប</button>
-                    `;
-                } else if (currentUserRole === 'Delivery') {
-                    actionButtons = `
-                        <button class="w-full bg-gray-300 text-gray-400 text-xs py-1 rounded font-bold cursor-not-allowed" disabled>✏️ កែ</button>
-                        <button class="w-full bg-gray-300 text-gray-400 text-xs py-1 rounded font-bold cursor-not-allowed" disabled>🗑️ លុប</button>
-                    `;
-                }
+        // === 🚪 មុខងារ LOGOUT ===
+        function handleLogout() {
+            document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('appContainer').classList.add('hidden');
+            document.getElementById('loginUser').value = "";
+            document.getElementById('loginPass').value = "";
+        }
 
-                const tr = document.createElement('tr'); tr.className = "border-b hover:bg-gray-50";
-                tr.innerHTML = `
-                    <td class="p-3">
-                        <div class="font-bold text-indigo-600">ID: ${inv.id}</div>
-                        <div class="font-semibold text-gray-700">${inv.name}</div>
-                        <div class="text-xs text-gray-500">${inv.phone || '-'}</div>
-                    </td>
-                    <td class="p-3">
-                        <div class="font-bold text-gray-800">$${(inv.amount || 0).toFixed(2)}</div>
-                        <button onclick="document.togglePayment('${inv.id}', '${inv.payment}')" class="mt-1 block px-2 py-0.5 rounded-full text-xs font-bold cursor-pointer ${badgePay}">${inv.payment === 'Paid' ? '✓ រួច' : '✗ មិនទាន់'}</button>
-                    </td>
-                    <td class="p-3 max-w-xs">
-                        <div class="space-y-1">${locationMarkup} ${driverMarkup}</div>
-                        ${issueMarkup}
-                        <div class="mt-1.5"><span class="px-2 py-0.5 rounded-full text-xs font-semibold ${badgeDeliv}">${statusText}</span></div>
-                    </td>
-                    <td class="p-3 text-xs text-gray-600 font-medium">${formatKhmerDate(inv.dateCreated)}</td>
-                    <td class="p-3 text-center">
-                        <div class="flex flex-col gap-1 justify-center items-center">
-                            ${actionButtons}
-                            <select onchange="document.updateStatus('${inv.id}', this.value)" class="w-full text-xs border rounded p-1 bg-white">
-                                <option value="Stock" ${inv.status === 'Stock' ? 'selected' : ''}>📦 ផ្នែកស្តុក</option>
-                                <option value="Preparing" ${inv.status === 'Preparing' ? 'selected' : ''}>⏳ ផ្នែករៀបចំ</option>
-                                <option value="Shipping" ${inv.status === 'Shipping' ? 'selected' : ''}>🚚 កំពុងដឹក</option>
-                                <option value="Delivered" ${inv.status === 'Delivered' ? 'selected' : ''}>✅ រួចរាល់</option>
-                                <option value="Returned" ${inv.status === 'Returned' ? 'selected' : ''}>❌ បដិសេធ</option>
-                            </select>
-                        </div>
-                    </td>
+        // === 🔄 មុខងារបង្ហាញទិន្នន័យទៅក្នុងតារាង (បង្កើតការពារកុំឱ្យគាំង) ===
+        function renderInvoices() {
+            const tableBody = document.getElementById('invoiceTableBody');
+            if (!tableBody) return;
+
+            const localData = localStorage.getItem('invoices');
+            if (!localData) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-4 text-center text-gray-400">📭 គ្មានទិន្នន័យក្នុងម៉ាស៊ីនឡើយ</td></tr>`;
+                return;
+            }
+
+            const invoices = JSON.parse(localData);
+            if (!Array.isArray(invoices) || invoices.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-4 text-center text-gray-400">📭 គ្មានទិន្នន័យបង្ហាញឡើយ</td></tr>`;
+                return;
+            }
+
+            // បង្ហាញទិន្នន័យចូលក្នុងតារាង
+            tableBody.innerHTML = "";
+            invoices.forEach((item, index) => {
+                // ឧបមាថាទិន្នន័យជួរនីមួយៗជា Array ឬ Object ផ្អែកលើ Apps Script
+                const name = item[1] || item.name || "មិនស្គាល់";
+                const phone = item[2] || item.phone || "មិនស្គាល់";
+                const status = item[3] || item.status || "កំពុងដំណើរការ";
+
+                tableBody.innerHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-2 border-b text-gray-600">${index + 1}</td>
+                        <td class="px-4 py-2 border-b font-medium text-gray-800">${name}</td>
+                        <td class="px-4 py-2 border-b text-gray-600">${phone}</td>
+                        <td class="px-4 py-2 border-b"><span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">${status}</span></td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
             });
         }
 
-        window.onload = function() { 
-            const user = localStorage.getItem('currentUser'); 
-            const role = localStorage.getItem('currentUserRole'); 
-            if(user && role) showSystem(user, role); 
+        // === ១. មុខងារទាញទិន្នន័យពី Google Sheets ===
+        async function fetchInvoicesFromGoogleSheets() {
+            if (!SCRIPT_URL) return;
+            
+            const statusBox = document.getElementById('syncStatus');
+            if (statusBox) {
+                statusBox.innerHTML = "🔄 កំពុងទាញទិន្នន័យ...";
+                statusBox.className = "text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded border border-yellow-300";
+            }
+            
+            try {
+                const response = await fetch(SCRIPT_URL + "?action=read");
+                const data = await response.json();
+                if (data && Array.isArray(data)) {
+                    // រក្សាទុកទិន្នន័យក្នុង LocalStorage របស់ទូរស័ព្ទ
+                    localStorage.setItem('invoices', JSON.stringify(data));
+                    
+                    // ហៅបង្ហាញទៅក្នុងតារាង
+                    renderInvoices();
+                    
+                    if (statusBox) {
+                        statusBox.innerHTML = "✅ Google Sheets Sync";
+                        statusBox.className = "text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded border border-green-300";
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                if (statusBox) {
+                    statusBox.innerHTML = "❌ មិនអាចទាញទិន្នន័យបាន";
+                    statusBox.className = "text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded border border-red-300";
+                }
+                // បើទោះជាមិនអាចទាញថ្មីបាន ក៏បង្ហាញទិន្នន័យចាស់ដែលមានស្រាប់ការពារគាំង
+                renderInvoices();
+            }
         }
     </script>
 </body>
