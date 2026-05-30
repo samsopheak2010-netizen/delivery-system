@@ -245,7 +245,7 @@
         </div>
     </div>
 
-    <script>
+  <script>
     // ==========================================
     // 🔗 Link Google Apps Script Web App របស់អ្នក (រក្សាទុកឱ្យត្រឹមត្រូវ)
     // ==========================================
@@ -281,7 +281,7 @@
             if (data && Array.isArray(data)) {
                 localStorage.setItem('invoices', JSON.stringify(data));
                 
-                // ហៅមុខងារបង្ហាញទិន្នន័យទៅក្នុងតារាង (បើមានក្នុងកូដផ្នែកខាងលើ)
+                // ហៅមុខងារបង្ហាញទិន្នន័យទៅក្នុងតារាង (ប្រសិនបើមានមុខងារនេះក្នុងកូដខាងលើ)
                 if (typeof renderInvoices === "function") {
                     renderInvoices();
                 }
@@ -310,7 +310,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: actionType, data: invoiceData })
             });
-            // ផ្ញើរួច ៩០ វិនាទីក្រោយមកទាញទិន្នន័យថ្មី
+            // ផ្ញើរួច ១.៥ វិនាទីក្រោយ មកទាញទិន្នន័យថ្មីដើម្បីអាប់ដេត
             setTimeout(fetchInvoicesFromGoogleSheets, 1500);
         } catch (error) {
             console.error("Error syncing to Google Sheets:", error);
