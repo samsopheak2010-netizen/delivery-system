@@ -3,350 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ប្រព័ន្ធគ្រប់គ្រងអតិថិជន និងការដឹកជញ្ជូន (Google Sheets Sync)</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    
+    <title>Delivery & Customer Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruuy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;600;700&display=swap');
-        body { font-family: 'Kantumruy Pro', sans-serif; }
-        .suggestion-box { max-height: 180px; overflow-y: auto; z-index: 50; }
+        body { font-family: 'Kantumruuy Pro', sans-serif; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen text-gray-800">
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
 
-    <div id="authSection" class="max-w-md mx-auto mt-20 p-6 bg-white rounded-xl shadow-lg border border-gray-100">
-        <h2 class="text-2xl font-bold text-center text-indigo-600 mb-6">🚚 Delivery & Customer Manager</h2>
-        <div class="flex border-b mb-4">
-            <button onclick="switchTab('login')" id="tabLoginBtn" class="w-1/2 pb-2 text-center font-semibold border-b-2 border-indigo-500 text-indigo-600">🔒 ចូលប្រើប្រាស់</button>
-            <button onclick="switchTab('register')" id="tabRegisterBtn" class="w-1/2 pb-2 text-center font-semibold text-gray-500 border-b-2 border-transparent">📝 ចុះឈ្មោះ</button>
-        </div>
+    <div id="loginContainer" class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full border border-gray-200">
+        <h2 class="text-2xl font-bold text-center text-indigo-600 mb-6 flex items-center justify-center gap-2">
+            🚚 Delivery & Customer Manager
+        </h2>
         
+        <div class="flex border-b border-gray-200 mb-6">
+            <button class="w-1/2 pb-2 text-center font-semibold text-indigo-600 border-b-2 border-indigo-600">🔒 ចូលប្រើប្រាស់</button>
+            <button class="w-1/2 pb-2 text-center font-semibold text-gray-400 cursor-not-allowed" disabled>📝 ចុះឈ្មោះ</button>
+        </div>
+
         <div id="loginForm">
-            <div class="mb-4"><label class="block text-sm font-medium mb-1">ឈ្មោះអ្នកប្រើប្រាស់</label><input type="text" id="loginUser" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500"></div>
-            <div class="mb-6"><label class="block text-sm font-medium mb-1">លេខសម្ងាត់</label><input type="password" id="loginPass" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500"></div>
-            <button onclick="handleLogin()" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">🔑 ចូលប្រើប្រាស់</button>
-        </div>
-        
-        <div id="registerForm" class="hidden">
-            <div class="mb-4"><label class="block text-sm font-medium mb-1">ឈ្មោះអ្នកប្រើប្រាស់ថ្មី</label><input type="text" id="regUser" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500"></div>
-            <div class="mb-4"><label class="block text-sm font-medium mb-1">លេខសម្ងាត់</label><input type="password" id="regPass" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500"></div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">ឈ្មោះអ្នកប្រើប្រាស់</label>
+                <input type="text" id="loginUser" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="បញ្ចូលឈ្មោះ (admin)">
+            </div>
             <div class="mb-6">
-                <label class="block text-sm font-medium mb-1">ជ្រើសរើសតួនាទី (Role) *</label>
-                <select id="regRole" class="w-full px-3 py-2 border rounded-md bg-white text-sm focus:outline-indigo-500">
-                    <option value="Admin">⭐ Admin (គ្រប់គ្រងទូទៅ)</option>
-                    <option value="Stock">📦 Stock (ផ្នែកស្តុកទំនិញ)</option>
-                    <option value="Delivery">🚚 Delivery (ផ្នែកដឹកជញ្ជូន)</option>
-                </select>
+                <label class="block text-sm font-medium text-gray-700 mb-1">លេខសម្ងាត់</label>
+                <input type="password" id="loginPass" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="បញ្ចូលលេខសម្ងាត់">
             </div>
-            <button onclick="handleRegister()" class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">➕ ចុះឈ្មោះគណនី</button>
+            <button onclick="handleLogin()" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition flex items-center justify-center gap-2">
+                🔑 ចូលប្រើប្រាស់
+            </button>
         </div>
     </div>
 
-    <div id="mainSection" class="hidden container mx-auto p-4 max-w-7xl">
-        <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm mb-6 border border-gray-100">
+    <div id="appContainer" class="hidden w-full max-w-4xl bg-white p-6 rounded-xl shadow-lg border border-gray-200 mt-4">
+        <div class="flex flex-wrap justify-between items-center border-b pb-4 mb-4 gap-2">
             <div>
-                <h1 class="text-xl font-bold text-gray-800">📦 ប្រព័ន្ធគ្រប់គ្រងទិន្នន័យអតិថិជន និងការដឹក</h1>
-                <div class="flex items-center gap-2 mt-1">
-                    <p class="text-sm text-gray-500">គណនី៖ <span id="currentUserDisplay" class="font-bold text-indigo-600"></span></p>
-                    <span id="currentUserRoleBadge" class="text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
-                    <span id="syncStatus" class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded border">🔄 មិនទាន់ភ្ជាប់</span>
+                <h1 class="text-xl font-bold text-gray-800">ប្រព័ន្ធគ្រប់គ្រងទិន្នន័យអតិថិជន និងការដឹកជញ្ជូន</h1>
+                <div class="flex items-center gap-2 mt-1 text-sm text-gray-600">
+                    <span>គណនី៖ <strong id="userDisplay" class="text-indigo-600">...</strong></span>
+                    <span class="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full font-medium">Admin</span>
+                    <span id="syncStatus" class="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded border border-yellow-300">🔄 កំពុងត្រៀម...</span>
                 </div>
             </div>
-            <button onclick="handleLogout()" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-600 transition">🚪 ចាកចេញ</button>
+            <button onclick="handleLogout()" class="bg-red-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-red-600 transition">
+                🚪 ចាកចេញ
+            </button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="space-y-6">
-                <div id="invoiceFormContainer" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 h-fit">
-                    <h3 id="formTitle" class="text-lg font-bold border-b pb-2 mb-4 text-gray-700">📝 បង្កើតទិន្នន័យអតិថិជនថ្មី</h3>
-                    
-                    <input type="hidden" id="editIndex" value="">
-
-                    <div class="mb-3 relative">
-                        <label class="block text-sm font-medium mb-1">លេខវិក្កយបត្រ (Invoice ID) *</label>
-                        <input type="text" id="invId" oninput="handleIdInput(this.value)" autocomplete="off" class="w-full px-3 py-2 border rounded-md focus:outline-indigo-500 font-bold uppercase" placeholder="ឧ. INKK-08693">
-                        <div id="idSuggestions" class="hidden absolute left-0 right-0 bg-white border rounded-md shadow-lg suggestion-box mt-1"></div>
-                    </div>
-                    
-                    <div class="mb-3 relative">
-                        <label class="block text-sm font-medium mb-1">ឈ្មោះអតិថិជន *</label>
-                        <input type="text" id="custName" oninput="handleNameInput(this.value)" autocomplete="off" class="w-full px-3 py-2 border rounded-md focus:outline-indigo-500">
-                        <div id="nameSuggestions" class="hidden absolute left-0 right-0 bg-white border rounded-md shadow-lg suggestion-box mt-1"></div>
-                    </div>
-
-                    <div class="mb-3"><label class="block text-sm font-medium mb-1">លេខទូរស័ព្ទ</label><input type="text" id="custPhone" class="w-full px-3 py-2 border rounded-md focus:outline-indigo-500"></div>
-                    
-                    <div class="mb-3">
-                        <label class="block text-sm font-medium mb-1">ឈ្មោះអ្នកដឹក (Driver)</label>
-                        <select id="driverName" class="w-full px-3 py-2 border rounded-md bg-white text-sm focus:outline-indigo-500"></select>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2 mb-3">
-                        <div>
-                            <label class="block text-sm font-medium mb-1">ទឹកប្រាក់ ($) *</label>
-                            <input type="number" id="invAmount" value="0.00" step="0.01" class="w-full px-3 py-2 border rounded-md focus:outline-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-1">ការទូទាត់</label>
-                            <select id="payStatus" class="w-full px-3 py-2 border rounded-md bg-white text-sm">
-                                <option value="Unpaid">មិនទាន់ទូទាត់</option>
-                                <option value="Paid">ទូទាត់រួច</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="mb-3 border p-3 rounded-lg bg-gray-50 space-y-2.5">
-                        <label class="block text-xs font-bold text-indigo-700 uppercase">📍 កំណត់/កែប្រែទីតាំងអតិថិជន</label>
-                        <div>
-                            <div class="flex gap-1.5">
-                                <input type="text" id="searchMapQuery" placeholder="វាយឈ្មោះទីតាំង... រួចចុច Search" class="w-full px-2.5 py-1.5 border rounded text-xs bg-white focus:outline-indigo-500">
-                                <button type="button" onclick="searchOnGoogleMaps()" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded text-xs font-bold shrink-0 transition">🔍 Search</button>
-                            </div>
-                        </div>
-                        <div>
-                            <input type="text" id="mapsLinkInput" oninput="extractCoordsFromLink()" placeholder="ផាស Link ពី Google Maps នៅទីនេះ..." class="w-full px-2.5 py-1.5 border rounded text-xs bg-white focus:outline-indigo-500">
-                        </div>
-                        <div class="flex gap-2 items-center pt-1 border-t border-gray-200">
-                            <input type="text" id="invLocation" placeholder="កូអរដោនេ ឬសញ្ញាសម្គាល់ទីតាំង" class="w-full px-2 py-1.5 border rounded text-xs bg-gray-200 font-mono text-gray-600" readonly>
-                            <button type="button" onclick="getCurrentGPS()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1.5 rounded text-xs font-bold shrink-0 transition">📍 GPS</button>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="block text-sm font-medium mb-1">ការស្នើសុំ / បញ្ហាផ្សេងៗ</label>
-                        <textarea id="invIssue" rows="2" placeholder="ព័ត៌មានបន្ថែម..." class="w-full px-3 py-2 border rounded-md text-sm focus:outline-indigo-500"></textarea>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium mb-1">ស្ថានភាពដឹកជញ្ជូន</label>
-                        <select id="invStatus" class="w-full px-3 py-2 border rounded-md bg-white">
-                            <option value="Stock">📦 នៅផ្នែកស្តុក (In Stock)</option>
-                            <option value="Preparing">⏳ ផ្នែករៀបចំ (Preparing)</option>
-                            <option value="Shipping">🚚 កំពុងដឹក (Shipping)</option>
-                            <option value="Delivered">✅ ដឹករួចរាល់ (Delivered)</option>
-                            <option value="Returned">❌ ភ្ញៀវបដិសេធ (Returned)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="flex gap-2">
-                        <button onclick="saveInvoice()" id="btnSave" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">💾 រក្សាទុក</button>
-                        <button onclick="resetForm()" id="btnCancel" class="hidden w-1/3 bg-gray-300 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-400 transition">បោះបង់</button>
-                    </div>
-                </div>
-
-                <div id="driverManagerContainer" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 h-fit">
-                    <h3 class="text-md font-bold border-b pb-2 mb-3 text-gray-700">🛵 គ្រប់គ្រងឈ្មោះអ្នកដឹក (Drivers)</h3>
-                    <div id="driverFormArea" class="flex gap-1.5 mb-3">
-                        <input type="hidden" id="editDriverIndex" value="">
-                        <input type="text" id="driverInputName" placeholder="បញ្ចូលឈ្មោះអ្នកដឹកថ្មី..." class="w-full px-3 py-1.5 border rounded-md text-sm focus:outline-indigo-500">
-                        <button onclick="saveDriver()" id="btnSaveDriver" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-md text-xs font-bold transition">បន្ថែម</button>
-                        <button onclick="resetDriverForm()" id="btnCancelDriver" class="hidden bg-gray-300 hover:bg-gray-400 text-gray-700 px-2 py-1.5 rounded-md text-xs font-bold transition">បោះបង់</button>
-                    </div>
-                    <div id="driverListContainer" class="space-y-1.5 max-h-40 overflow-y-auto pr-1"></div>
-                </div>
-            </div>
-
-            <div class="lg:col-span-2 space-y-4">
-                <div id="reportAndImportContainer" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
-                        <h4 class="text-xs font-bold text-indigo-900 mb-2">📊 ទាញរបាយការណ៍ប្រចាំថ្ងៃ ខែ ឆ្នាំ</h4>
-                        <div class="grid grid-cols-2 gap-1.5 items-end">
-                            <div class="col-span-2">
-                                <input type="date" id="reportDate" class="w-full px-2 py-1 bg-white border rounded text-xs">
-                            </div>
-                            <div>
-                                <select id="reportFilterType" class="w-full px-2 py-1 bg-white border rounded text-xs">
-                                    <option value="day">📆 តាមថ្ងៃ</option>
-                                    <option value="month">📅 តាមខែ</option>
-                                    <option value="year">🗓️ តាមឆ្នាំ</option>
-                                </select>
-                            </div>
-                            <div class="flex gap-1">
-                                <button onclick="exportToExcel()" class="w-1/2 bg-green-600 text-white text-[11px] py-1 rounded font-bold cursor-pointer">Excel</button>
-                                <button onclick="exportToPDF()" class="w-1/2 bg-red-600 text-white text-[11px] py-1 rounded font-bold cursor-pointer">PDF</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="excelImportBox" class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex flex-col justify-between">
-                        <div>
-                            <h4 class="text-xs font-bold text-emerald-900 mb-1">📥 នាំចូលវិក្កយបត្រស្វ័យប្រវត្តិ (Excel/CSV)</h4>
-                            <p class="text-[10px] text-emerald-700 mb-2">ប្រព័ន្ធនឹងអាន Column: <b>Invoice No.</b>, <b>Customer Name</b>, <b>Invoice Amount</b></p>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelUpload(event)">
-                            <button onclick="document.getElementById('excelFileInput').click()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2 rounded-lg font-bold transition text-center cursor-pointer">📁 ជ្រើសរើសឯកសាររួច Upload</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                    <div class="border-b pb-4 mb-4 flex flex-col gap-3">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full relative">
-                            <div class="relative">
-                                <input type="text" id="searchQuery" oninput="handleSearchInput(this.value)" placeholder="🔍 ស្វែងរកតាមឈ្មោះ, លេខកូដ, អ្នកដឹក..." class="w-full px-3 py-2 border rounded-md text-sm" autocomplete="off">
-                                <div id="searchSuggestions" class="hidden absolute left-0 right-0 bg-white border rounded-md shadow-xl mt-1 suggestion-box border-gray-200"></div>
-                            </div>
-                            
-                            <select id="filterStatus" onchange="currentPage=1; renderInvoices()" class="px-3 py-2 border rounded-md bg-white text-sm">
-                                <option value="All">បង្ហាញគ្រប់ស្ថានភាពទាំងអស់</option>
-                                <option value="Stock">📦 ផ្នែកស្តុក (In Stock)</option>
-                                <option value="Preparing">⏳ ផ្នែករៀបចំ (Preparing)</option>
-                                <option value="Shipping">🚚 កំពុងដឹក (Shipping)</option>
-                                <option value="Delivered">✅ ដឹករួចរាល់ (Delivered)</option>
-                                <option value="Returned">❌ ភ្ញៀវបដិសេធ (Returned)</option>
-                            </select>
-                        </div>
-
-                        <div class="flex flex-wrap justify-between items-center gap-2 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
-                            <div class="flex items-center gap-2 text-xs font-semibold text-gray-600">
-                                <span>📄 បង្ហាញ៖</span>
-                                <select id="rowsPerPageSelect" onchange="changeRowsPerPage(this.value)" class="bg-white border rounded px-2 py-1 text-xs focus:outline-indigo-500 font-bold text-gray-700">
-                                    <option value="5">5 ជួរ</option>
-                                    <option value="10">10 ជួរ</option>
-                                    <option value="20">20 ជួរ</option>
-                                    <option value="all">ទាំងអស់ (All)</option>
-                                </select>
-                            </div>
-                            <div class="text-xs font-bold text-gray-500 bg-white px-2.5 py-1 rounded border border-gray-200">
-                                សរុប៖ <span id="totalInvoiceCount" class="text-indigo-600 text-sm">0</span> វិក្កយបត្រ
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse text-sm">
-                            <thead>
-                                <tr class="bg-gray-50 border-b">
-                                    <th class="p-3 font-bold text-gray-600">អតិថិជន / វិក្កយបត្រ</th>
-                                    <th class="p-3 font-bold text-gray-600">តម្លៃ / ការទូទាត់</th>
-                                    <th class="p-3 font-bold text-gray-600">Pin ទីតាំង / អ្នកដឹក</th>
-                                    <th class="p-3 font-bold text-gray-600">កាលបរិច្ឆេទបង្កើត</th>
-                                    <th class="p-3 font-bold text-gray-600 text-center">សកម្មភាព</th>
-                                </tr>
-                            </thead>
-                            <tbody id="invoiceTableBody"></tbody>
-                        </table>
-                    </div>
-
-                    <div id="paginationContainer" class="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
-                        <div class="text-xs text-gray-500 font-medium">
-                            បង្ហាញទំព័រ <span id="txtCurrentPage" class="font-bold text-gray-700">1</span> នៃ <span id="txtTotalPages" class="font-bold text-gray-700">1</span>
-                        </div>
-                        <div class="flex gap-1">
-                            <button onclick="changePage(-1)" id="btnPrevPage" class="px-3 py-1 text-xs font-bold bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-40 transition cursor-pointer">◀ ថយក្រោយ</button>
-                            <button onclick="changePage(1)" id="btnNextPage" class="px-3 py-1 text-xs font-bold bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-40 transition cursor-pointer">ទៅមុខ ▶</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="p-8 text-center border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
+            <p class="text-gray-500">👋 ស្វាគមន៍មកកាន់ប្រព័ន្ធគ្រប់គ្រង! ទិន្នន័យអតិថិជនរបស់អ្នកត្រូវបានភ្ជាប់ជាមួយ Google Sheets រួចរាល់។</p>
+            <p class="text-xs text-gray-400 mt-2">ប្រព័ន្ធដំណើរការបានរលូនទាំងនៅលើទូរស័ព្ទ និងកុំព្យូទ័រ</p>
         </div>
     </div>
 
-  <script>
-    // ==========================================
-    // 🔗 Link Google Apps Script Web App របស់អ្នក (រក្សាទុកឱ្យត្រឹមត្រូវ)
-    // ==========================================
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwe1s4QDH8Ti_NUIwd2o2BwaHyY_GRLVTG_Hz19mrVkyhnhaP1XQQQtuo1Xbkj6qkQFLg/exec"; 
+    <script>
+        // 🔗 នេះជា Link Apps Script Web App របស់អ្នកដែលបានអាប់ដេតរួចរាល់
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwe1s4QDH8Ti_NUIwd2o2BwaHyY_GRLVTG_Hz19mrVkyhnhaP1XQQQtuo1Xbkj6qkQFLg/exec"; 
 
-    let currentCoordinates = "";
-    let currentPage = 1;
-    let rowsPerPage = 5; 
-    let currentUserRole = "Admin"; 
+        let currentCoordinates = "";
+        let currentPage = 1;
+        let rowsPerPage = 5; 
+        let currentUserRole = "Admin"; 
 
-    // មុខងារកំណត់កាលបរិច្ឆេទស្វ័យប្រវត្ត និងហៅទិន្នន័យពេលបើក App
-    window.onload = function() {
-        if (document.getElementById('reportDate')) {
-            document.getElementById('reportDate').value = new Date().toISOString().substring(0, 10);
-        }
-        // ទាញទិន្នន័យពី Google Sheets មកទុកក្នុងម៉ាស៊ីនមុន
-        fetchInvoicesFromGoogleSheets();
-    };
+        // ដំណើរការស្វ័យប្រវត្តនៅពេល App បើកភ្លាម
+        window.onload = function() {
+            // ទាញទិន្នន័យពី Sheets មកទុកក្នុងម៉ាស៊ីនជាមុន
+            fetchInvoicesFromGoogleSheets();
+        };
 
-    // === 🔑 មុខងារ LOGIN (ដោះស្រាយបញ្ហាចុចមិនដើរ) ===
-    function handleLogin() {
-        const userInput = document.getElementById('loginUser').value.trim();
-        const passInput = document.getElementById('loginPass').value.trim();
-        
-        if (!userInput || !passInput) {
-            alert("សូមបញ្ចូលឈ្មោះអ្នកប្រើប្រាស់ និងលេខសម្ងាត់!");
-            return;
-        }
-
-        // ប្រព័ន្ធត្រួតពិនិត្យឈ្មោះ និងលេខសម្ងាត់ (ទម្រង់ Admin/123456)
-        if (userInput.toLowerCase() === "admin" && passInput === "123456") {
-            currentUserRole = "Admin";
+        // === 🔑 មុខងារ LOGIN (ដោះស្រាយបញ្ហាចុចប៊ូតុងមិនដើរ) ===
+        function handleLogin() {
+            const userInput = document.getElementById('loginUser').value.trim();
+            const passInput = document.getElementById('loginPass').value.trim();
             
-            // ផ្លាស់ប្តូរផ្ទាំងពី Login ទៅកាន់ផ្ទាំងគ្រប់គ្រង App ធំ
-            if (document.getElementById('loginContainer')) {
-                document.getElementById('loginContainer').classList.add('hidden');
+            if (!userInput || !passInput) {
+                alert("សូមបញ្ចូលឈ្មោះអ្នកប្រើប្រាស់ និងលេខសម្ងាត់!");
+                return;
             }
-            if (document.getElementById('appContainer')) {
-                document.getElementById('appContainer').classList.remove('hidden');
-            }
-            
-            // បង្ហាញឈ្មោះអ្នកប្រើប្រាស់លើ Header
-            const userDisplay = document.getElementById('userDisplay');
-            if (userDisplay) userDisplay.innerText = "admin";
-            
-            // បង្ហាញទិន្នន័យឡើងវិញ
-            if (typeof renderInvoices === "function") {
-                renderInvoices();
-            }
-        } else {
-            alert("ឈ្មោះអ្នកប្រើប្រាស់ ឬលេខសម្ងាត់មិនត្រឹមត្រូវឡើយ!");
-        }
-    }
 
-    // === ១. មុខងារទាញទិន្នន័យពី Google Sheets ===
-    async function fetchInvoicesFromGoogleSheets() {
-        if (!SCRIPT_URL) return;
-        
-        const statusBox = document.getElementById('syncStatus');
-        if (statusBox) {
-            statusBox.innerHTML = "🔄 កំពុងទាញទិន្នន័យ...";
-            statusBox.className = "text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded border border-yellow-300";
-        }
-        
-        try {
-            const response = await fetch(SCRIPT_URL + "?action=read");
-            const data = await response.json();
-            if (data && Array.isArray(data)) {
-                localStorage.setItem('invoices', JSON.stringify(data));
+            // ឆែកត្រួតពិនិត្យ (admin / 123456)
+            if (userInput.toLowerCase() === "admin" && passInput === "123456") {
+                currentUserRole = "Admin";
                 
+                // បិទផ្ទាំង Login និងបើកផ្ទាំង App ធំ
+                document.getElementById('loginContainer').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+                
+                // បង្ហាញឈ្មោះនៅលើ Header
+                document.getElementById('userDisplay').innerText = userInput;
+                
+                // អាប់ដេតទិន្នន័យទៅក្នុងតារាង
                 if (typeof renderInvoices === "function") {
                     renderInvoices();
                 }
-                
+            } else {
+                alert("ឈ្មោះអ្នកប្រើប្រាស់ ឬលេខសម្ងាត់មិនត្រឹមត្រូវឡើយ!");
+            }
+        }
+
+        // === 🚪 មុខងារ LOGOUT ===
+        function handleLogout() {
+            document.getElementById('loginContainer').classList.remove('hidden');
+            document.getElementById('appContainer').classList.add('hidden');
+            document.getElementById('loginUser').value = "";
+            document.getElementById('loginPass').value = "";
+        }
+
+        // === ១. មុខងារទាញទិន្នន័យពី Google Sheets ===
+        async function fetchInvoicesFromGoogleSheets() {
+            if (!SCRIPT_URL) return;
+            
+            const statusBox = document.getElementById('syncStatus');
+            if (statusBox) {
+                statusBox.innerHTML = "🔄 កំពុងទាញទិន្នន័យ...";
+                statusBox.className = "text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded border border-yellow-300";
+            }
+            
+            try {
+                const response = await fetch(SCRIPT_URL + "?action=read");
+                const data = await response.json();
+                if (data && Array.isArray(data)) {
+                    localStorage.setItem('invoices', JSON.stringify(data));
+                    
+                    if (typeof renderInvoices === "function") {
+                        renderInvoices();
+                    }
+                    
+                    if (statusBox) {
+                        statusBox.innerHTML = "✅ Google Sheets Sync";
+                        statusBox.className = "text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded border border-green-300";
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
                 if (statusBox) {
-                    statusBox.innerHTML = "✅ Google Sheets Sync";
-                    statusBox.className = "text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded border border-green-300";
+                    statusBox.innerHTML = "❌ មិនអាចទាញទិន្នន័យបាន";
+                    statusBox.className = "text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded border border-red-300";
                 }
             }
-        } catch (error) {
-            console.error("Error fetching data:", error);
-            if (statusBox) {
-                statusBox.innerHTML = "❌ មិនអាចទាញទិន្នន័យបាន";
-                statusBox.className = "text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded border border-red-300";
+        }
+
+        // === ២. មុខងារផ្ញើទិន្នន័យទៅរក្សាទុកនៅលើ Google Sheets ===
+        async function syncToGoogleSheets(actionType, invoiceData) {
+            if (!SCRIPT_URL) return;
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: actionType, data: invoiceData })
+                });
+                setTimeout(fetchInvoicesFromGoogleSheets, 1500);
+            } catch (error) {
+                console.error("Error syncing to Google Sheets:", error);
             }
         }
-    }
-
-    // === ២. មុខងារផ្ញើទិន្នន័យទៅ Google Sheets ===
-    async function syncToGoogleSheets(actionType, invoiceData) {
-        if (!SCRIPT_URL) return;
-        try {
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: actionType, data: invoiceData })
-            });
-            setTimeout(fetchInvoicesFromGoogleSheets, 1500);
-        } catch (error) {
-            console.error("Error syncing to Google Sheets:", error);
-        }
-    }
-</script>
+    </script>
+</body>
+</html>
