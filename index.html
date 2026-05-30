@@ -95,7 +95,7 @@
                     <div class="mb-3">
                         <label class="block text-sm font-medium mb-1">ឈ្មោះអ្នកដឹក (Driver)</label>
                         <select id="driverName" class="w-full px-3 py-2 border rounded-md bg-white text-sm focus:outline-indigo-500">
-                            </select>
+                        </select>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2 mb-3">
@@ -236,14 +236,14 @@
                             <thead>
                                 <tr class="bg-gray-50 border-b">
                                     <th class="p-3 font-bold text-gray-600">អតិថិជន / វិក្កយបត្រ</th>
-                                    <th class="p-3 font-bold text-gray-600">តម្លៃ / การទូទាត់</th>
+                                    <th class="p-3 font-bold text-gray-600">តម្លៃ / ការទូទាត់</th>
                                     <th class="p-3 font-bold text-gray-600">Pin ទីតាំង / អ្នកដឹក</th>
                                     <th class="p-3 font-bold text-gray-600">កាលបរិច្ឆេទបង្កើត</th>
                                     <th class="p-3 font-bold text-gray-600 text-center">សកម្មភាព</th>
                                 </tr>
                             </thead>
                             <tbody id="invoiceTableBody">
-                                </tbody>
+                            </tbody>
                         </table>
                     </div>
 
@@ -263,7 +263,7 @@
 
     <script>
         // ==========================================
-        // 🔗 ដាក់លីង Google Apps Script Web App របស់អ្នកនៅទីនេះ
+        // 🔗 ដាក់លីង Google Apps Script Web App របស់អ្នកនៅទីនេះ (ជួរ ២៦៨)
         // ==========================================
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwe1s4QDH8Ti_NUIwd2o2BwaHYy_GRLVTG_Hz19mrVkyhnhaP1XQQQtuolXbkj6qkQFLg/exec";
 
@@ -272,10 +272,8 @@
         let rowsPerPage = 5; 
         let currentUserRole = "Admin"; 
 
-        // កំណត់ថ្ងៃរាយការណ៍លំនាំដើមជាថ្ងៃនេះ
         document.getElementById('reportDate').value = new Date().toISOString().substring(0, 10);
 
-        // 🔄 មុខងារទាញទិន្នន័យពី Google Sheets (Cloud)
         async function fetchFromGoogleSheets() {
             if (!SCRIPT_URL || SCRIPT_URL.includes("សូមផាស")) return;
             try {
@@ -292,7 +290,6 @@
             }
         }
 
-        // 📤 មុខងារបញ្ជូនទិន្នន័យទៅរក្សាទុកលើ Google Sheets (Cloud)
         async function syncToGoogleSheets(action, data) {
             if (!SCRIPT_URL || SCRIPT_URL.includes("សូមផាស")) return;
             try {
@@ -307,7 +304,6 @@
             }
         }
 
-        // 📥 មុខងារ Upload និងអានឯកសារ Excel (Smart Reader)
         function handleExcelUpload(event) {
             if (currentUserRole === 'Delivery') return alert("⚠️ អ្នកគ្មានសិទ្ធិប្រើប្រាស់មុខងារនេះទេ!");
             const file = event.target.files[0];
@@ -366,7 +362,6 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // 📄 កំណត់ចំនួនជួរត្រូវបង្ហាញ
         function changeRowsPerPage(value) {
             if (value === 'all') {
                 rowsPerPage = 999999; 
@@ -377,7 +372,6 @@
             renderInvoices();
         }
 
-        // 🔍 Search Input Handler & Auto Suggestions
         function handleSearchInput(val) {
             currentPage = 1; 
             renderInvoices();
@@ -419,20 +413,17 @@
             renderInvoices();
         }
 
-        // បិទ Suggestion ពេលចុចក្រៅប្រអប់
         document.addEventListener('click', function(e) {
             if (e.target.id !== 'searchQuery') {
                 document.getElementById('searchSuggestions').classList.add('hidden');
             }
         });
 
-        // ប្តូរទំព័រ Pagination
         function changePage(direction) {
             currentPage += direction;
             renderInvoices();
         }
 
-        // --- ផ្នែកគ្រប់គ្រងឈ្មោះអ្នកដឹក (Drivers Manager) ---
         function getDrivers() {
             let drivers = JSON.parse(localStorage.getItem('drivers'));
             if (!drivers || drivers.length === 0) {
@@ -506,7 +497,6 @@
             document.getElementById('btnCancelDriver').classList.add('hidden');
         }
 
-        // --- Auto Suggestions នៅក្នុង Form បញ្ចូលទិន្នន័យ ---
         function handleIdInput(val) {
             val = val.toUpperCase();
             document.getElementById('invId').value = val;
@@ -547,7 +537,6 @@
             document.getElementById(inputId).value = value;
             document.getElementById(boxId).classList.add('hidden');
             
-            // បើវាយលេខ ID ត្រូវនឹងវិក្កយបត្រដែលមានស្រាប់ វានឹងហៅទិន្នន័យមកកែស្វ័យប្រវត្តិ (លើកលែងតែ Delivery)
             if(inputId === 'invId' && currentUserRole !== 'Delivery') {
                 let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
                 let idx = invoices.findIndex(i => i.id === value);
@@ -555,13 +544,11 @@
             }
         }
 
-        // បិទ Suggestion ក្នុង Form ពេលចុចខាងក្រៅ
         document.addEventListener('click', function(e) {
             if (e.target.id !== 'invId') document.getElementById('idSuggestions').classList.add('hidden');
             if (e.target.id !== 'custName') document.getElementById('nameSuggestions').classList.add('hidden');
         });
 
-        // 🗑️ មុខងារលុបវិក្កយបត្រ (Admin Only)
         document.deleteInvoice = async function(index) {
             if (currentUserRole !== 'Admin') return alert("⚠️ មានតែ Admin ទេ ទើបអាចលុបទិន្នន័យបាន!");
             if(confirm("តើអ្នកពិតជាចង់លុបវិក្កយបត្រនេះមែនទេ?")) {
@@ -573,7 +560,6 @@
             }
         }
 
-        // --- 📊 ផ្នែកគ្រប់គ្រងរបាយការណ៍ និងទាញយក (Reports Export) ---
         function getFilteredReportData() {
             let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
             const filterType = document.getElementById('reportFilterType').value;
@@ -649,11 +635,10 @@
             return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth()+1).toString().padStart(2, '0')}-${d.getFullYear()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
         }
 
-        // --- 📍 ផ្នែកដោះស្រាយប្រព័ន្ធផែនទី និងកូអរដោនេ (Maps & Location Settings) ---
         function searchOnGoogleMaps() {
             const query = document.getElementById('searchMapQuery').value.trim();
             if (!query) return alert("សូមវាយបញ្ចូលឈ្មោះទីតាំងដែលចង់ស្វែងរក!");
-            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`, '_blank');
+            window.open(`https://www.google.com/maps/search/${encodeURIComponent(query)}`, '_blank');
         }
 
         function getCurrentGPS() {
@@ -690,7 +675,6 @@
             }
         }
 
-        // --- 🔐 ផ្នែកគ្រប់គ្រងសិទ្ធិ និងគណនី (Authentication & Role Permissions) ---
         function switchTab(type) {
             if(type === 'login') {
                 document.getElementById('loginForm').classList.remove('hidden');
@@ -784,7 +768,6 @@
             fetchFromGoogleSheets();
         }
 
-        // --- 📑 ផ្នែកគ្រប់គ្រងប្រតិបត្តិការទិន្នន័យ (Invoices Operations) ---
         async function saveInvoice() {
             if (currentUserRole === 'Delivery') return alert("⚠️ អ្នកគ្មានសិទ្ធិបង្កើត ឬកែប្រែទិន្នន័យទេ!");
             const id = document.getElementById('invId').value.trim().toUpperCase();
@@ -886,135 +869,4 @@
                 renderInvoices();
                 return;
             }
-            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-            invoices = invoices.map(inv => inv.id === id ? {...inv, status: newStatus} : inv);
-            localStorage.setItem('invoices', JSON.stringify(invoices));
-            renderInvoices();
-            await syncToGoogleSheets('syncInvoices', invoices);
-        }
-
-        // --- 🖥️ Render បង្ហាញទិន្នន័យក្នុងតារាង ---
-        function renderInvoices() {
-            const filterStat = document.getElementById('filterStatus').value;
-            const search = document.getElementById('searchQuery').value.toLowerCase().trim();
-            const tbody = document.getElementById('invoiceTableBody');
-            tbody.innerHTML = '';
-            
-            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-
-            if(search !== "") {
-                invoices = invoices.filter(inv => 
-                    inv.name.toLowerCase().includes(search) || 
-                    inv.id.toLowerCase().includes(search) ||
-                    (inv.phone && inv.phone.includes(search)) ||
-                    (inv.driver && inv.driver.toLowerCase().includes(search))
-                );
-            }
-
-            if(filterStat !== 'All') invoices = invoices.filter(inv => inv.status === filterStat);
-            
-            document.getElementById('totalInvoiceCount').innerText = invoices.length;
-
-            const totalPages = Math.ceil(invoices.length / rowsPerPage) || 1;
-            if (currentPage > totalPages) currentPage = totalPages;
-
-            const paginationContainer = document.getElementById('paginationContainer');
-            if (rowsPerPage >= 999999 || invoices.length <= rowsPerPage) {
-                paginationContainer.classList.add('hidden');
-            } else {
-                paginationContainer.classList.remove('hidden');
-                document.getElementById('txtCurrentPage').innerText = currentPage;
-                document.getElementById('txtTotalPages').innerText = totalPages;
-                document.getElementById('btnPrevPage').disabled = (currentPage === 1);
-                document.getElementById('btnNextPage').disabled = (currentPage === totalPages);
-            }
-
-            if(invoices.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400">មិនមានទិន្នន័យអតិថិជនទេ។</td></tr>';
-                return;
-            }
-
-            const startIndex = (currentPage - 1) * rowsPerPage;
-            const endIndex = startIndex + rowsPerPage;
-            const paginatedInvoices = invoices.slice(startIndex, endIndex);
-
-            paginatedInvoices.forEach((inv, index) => {
-                const actualIndex = startIndex + index;
-
-                let badgeDeliv = "bg-gray-100 text-gray-800"; let statusText = "នៅផ្នែកស្តុក";
-                if(inv.status === 'Preparing') { badgeDeliv = "bg-yellow-100 text-yellow-800"; statusText = "កំពុងរៀបចំ"; }
-                else if(inv.status === 'Shipping') { badgeDeliv = "bg-blue-100 text-blue-800"; statusText = "កំពុងដឹក"; }
-                else if(inv.status === 'Delivered') { badgeDeliv = "bg-green-100 text-green-800"; statusText = "ដឹករួចរាល់"; }
-                else if(inv.status === 'Returned') { badgeDeliv = "bg-red-100 text-red-800"; statusText = "ភ្ញៀវបដិសេធ"; }
-
-                let badgePay = inv.payment === 'Paid' ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
-                
-                let locationMarkup = inv.location ? `
-                    <a href="${inv.location.startsWith("http") ? inv.location : 'https://www.google.com/maps/search/?api=1&query=' + inv.location}" target="_blank" class="inline-flex items-center gap-1 text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200 hover:underline">📍 បើកផែនទី</a>
-                ` : '<span class="text-xs text-gray-400">📍 គ្មានទីតាំង</span>';
-                
-                let issueMarkup = inv.issue ? '<p class="text-xs bg-red-50 text-red-700 p-1 rounded mt-1 border border-red-100">⚠️ ' + inv.issue + '</p>' : '';
-                let driverMarkup = inv.driver ? `<span class="text-xs font-semibold block text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100 w-fit mt-1">🛵 ${inv.driver}</span>` : '<span class="text-xs text-gray-400 block mt-1">❌ គ្មានអ្នកដឹក</span>';
-
-                let actionButtons = '';
-                if (currentUserRole === 'Admin') {
-                    actionButtons = `
-                        <button onclick="document.editInvoice(${actualIndex})" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-xs py-1 rounded font-bold transition">✏️ កែ</button>
-                        <button onclick="document.deleteInvoice(${actualIndex})" class="w-full bg-red-500 hover:bg-red-600 text-white text-xs py-1 rounded font-bold transition">🗑️ លុប</button>
-                    `;
-                } else if (currentUserRole === 'Stock') {
-                    actionButtons = `
-                        <button onclick="document.editInvoice(${actualIndex})" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-xs py-1 rounded font-bold transition">✏️ កែ</button>
-                        <button class="w-full bg-gray-300 text-gray-500 text-xs py-1 rounded font-bold cursor-not-allowed" disabled>🗑️ លុប</button>
-                    `;
-                } else if (currentUserRole === 'Delivery') {
-                    actionButtons = `
-                        <button class="w-full bg-gray-300 text-gray-400 text-xs py-1 rounded font-bold cursor-not-allowed" disabled>✏️ កែ</button>
-                        <button class="w-full bg-gray-300 text-gray-400 text-xs py-1 rounded font-bold cursor-not-allowed" disabled>🗑️ លុប</button>
-                    `;
-                }
-
-                const tr = document.createElement('tr');
-                tr.className = "border-b hover:bg-gray-50";
-                tr.innerHTML = `
-                    <td class="p-3">
-                        <div class="font-bold text-indigo-600">ID: ${inv.id}</div>
-                        <div class="font-semibold text-gray-700">${inv.name}</div>
-                        <div class="text-xs text-gray-500">${inv.phone || '-'}</div>
-                    </td>
-                    <td class="p-3">
-                        <div class="font-bold text-gray-800">$${(inv.amount || 0).toFixed(2)}</div>
-                        <button onclick="document.togglePayment('${inv.id}', '${inv.payment}')" class="mt-1 block px-2 py-0.5 rounded-full text-xs font-bold cursor-pointer ${badgePay}">${inv.payment === 'Paid' ? '✓ រួច' : '✗ មិនទាន់'}</button>
-                    </td>
-                    <td class="p-3 max-w-xs">
-                        <div class="space-y-1">${locationMarkup} ${driverMarkup}</div>
-                        ${issueMarkup}
-                        <div class="mt-1.5"><span class="px-2 py-0.5 rounded-full text-xs font-semibold ${badgeDeliv}">${statusText}</span></div>
-                    </td>
-                    <td class="p-3 text-xs text-gray-600 font-medium">${formatKhmerDate(inv.dateCreated)}</td>
-                    <td class="p-3 text-center">
-                        <div class="flex flex-col gap-1 justify-center items-center">
-                            ${actionButtons}
-                            <select onchange="document.updateStatus('${inv.id}', this.value)" class="w-full text-xs border rounded p-1 bg-white">
-                                <option value="Stock" ${inv.status === 'Stock' ? 'selected' : ''}>📦 ផ្នែកស្តុក</option>
-                                <option value="Preparing" ${inv.status === 'Preparing' ? 'selected' : ''}>⏳ ផ្នែករៀបចំ</option>
-                                <option value="Shipping" ${inv.status === 'Shipping' ? 'selected' : ''}>🚚 កំពុងដឹក</option>
-                                <option value="Delivered" ${inv.status === 'Delivered' ? 'selected' : ''}>✅ រួចរាល់</option>
-                                <option value="Returned" ${inv.status === 'Returned' ? 'selected' : ''}>❌ បដិសេធ</option>
-                            </select>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // ពិនិត្យមើលគណនីពេលទំព័រដំបូងត្រូវបានបើក
-        window.onload = function() { 
-            const user = localStorage.getItem('currentUser'); 
-            const role = localStorage.getItem('currentUserRole'); 
-            if(user && role) showSystem(user, role); 
-        }
-    </script>
-</body>
-</html>
+            let invoices = JSON.parse(localStorage.getItem('invoices
