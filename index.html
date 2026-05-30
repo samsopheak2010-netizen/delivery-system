@@ -265,6 +265,41 @@
         fetchInvoicesFromGoogleSheets();
     };
 
+    // === 🔑 មុខងារ LOGIN (ដោះស្រាយបញ្ហាចុចមិនដើរ) ===
+    function handleLogin() {
+        const userInput = document.getElementById('loginUser').value.trim();
+        const passInput = document.getElementById('loginPass').value.trim();
+        
+        if (!userInput || !passInput) {
+            alert("សូមបញ្ចូលឈ្មោះអ្នកប្រើប្រាស់ និងលេខសម្ងាត់!");
+            return;
+        }
+
+        // ប្រព័ន្ធត្រួតពិនិត្យឈ្មោះ និងលេខសម្ងាត់ (ទម្រង់ Admin/123456)
+        if (userInput.toLowerCase() === "admin" && passInput === "123456") {
+            currentUserRole = "Admin";
+            
+            // ផ្លាស់ប្តូរផ្ទាំងពី Login ទៅកាន់ផ្ទាំងគ្រប់គ្រង App ធំ
+            if (document.getElementById('loginContainer')) {
+                document.getElementById('loginContainer').classList.add('hidden');
+            }
+            if (document.getElementById('appContainer')) {
+                document.getElementById('appContainer').classList.remove('hidden');
+            }
+            
+            // បង្ហាញឈ្មោះអ្នកប្រើប្រាស់លើ Header
+            const userDisplay = document.getElementById('userDisplay');
+            if (userDisplay) userDisplay.innerText = "admin";
+            
+            // បង្ហាញទិន្នន័យឡើងវិញ
+            if (typeof renderInvoices === "function") {
+                renderInvoices();
+            }
+        } else {
+            alert("ឈ្មោះអ្នកប្រើប្រាស់ ឬលេខសម្ងាត់មិនត្រឹមត្រូវឡើយ!");
+        }
+    }
+
     // === ១. មុខងារទាញទិន្នន័យពី Google Sheets ===
     async function fetchInvoicesFromGoogleSheets() {
         if (!SCRIPT_URL) return;
@@ -281,7 +316,6 @@
             if (data && Array.isArray(data)) {
                 localStorage.setItem('invoices', JSON.stringify(data));
                 
-                // ហៅមុខងារបង្ហាញទិន្នន័យទៅក្នុងតារាង (ប្រសិនបើមានមុខងារនេះក្នុងកូដខាងលើ)
                 if (typeof renderInvoices === "function") {
                     renderInvoices();
                 }
@@ -310,7 +344,6 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: actionType, data: invoiceData })
             });
-            // ផ្ញើរួច ១.៥ វិនាទីក្រោយ មកទាញទិន្នន័យថ្មីដើម្បីអាប់ដេត
             setTimeout(fetchInvoicesFromGoogleSheets, 1500);
         } catch (error) {
             console.error("Error syncing to Google Sheets:", error);
