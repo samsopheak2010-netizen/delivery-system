@@ -246,8 +246,8 @@
     </div>
 
     <script>
-        // === 1. កំណត់ Google App Script URL នៅទីនេះ ===
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwe1s4QDH8Ti_NUIwd2o2BwaHYy_GRLVTG_Hz19mrVkyhnhaP1XQQQtuolXbkj6qkQFLg/exec"; 
+        // === 1. កំណត់ Google App Script URL របស់អ្នករួចរាល់ ===
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwe1s4QDH8Ti_NUIwd2o2BwaHyY_GRLVTG_Hz19mrVkyhnhaP1XQQQtuo1Xbkj6qkQFLg/exec"; 
 
         let currentCoordinates = "";
         let currentPage = 1;
@@ -553,7 +553,7 @@
         function searchOnGoogleMaps() {
             const query = document.getElementById('searchMapQuery').value.trim();
             if (!query) return alert("សូមវាយបញ្ចូលឈ្មោះទីតាំងដែលចង់ស្វែងរក!");
-            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`, '_blank');
+            window.open(`https://www.google.com/maps/search/${encodeURIComponent(query)}`, '_blank');
         }
 
         function getCurrentGPS() {
@@ -603,7 +603,6 @@
             const u = document.getElementById('loginUser').value.trim(); 
             const p = document.getElementById('loginPass').value.trim();
             
-            // កែសម្រួលចំណុចនេះ៖ មិនថាវាយ Admin អក្សរតូច ឬធំទេ គឺអាចចូលបានដូចគ្នា
             if (u.toLowerCase() === "admin" && p === "123456") {
                 localStorage.setItem('currentUser', "admin");
                 localStorage.setItem('currentUserRole', 'Admin');
@@ -652,7 +651,7 @@
             
             applyRolePermissions(role);
             renderDrivers(); 
-            fetchInvoicesFromGoogleSheets(); // រាល់ពេល Login វានឹងទៅទាញទិន្នន័យថ្មីពី Google Sheets
+            fetchInvoicesFromGoogleSheets(); 
         }
 
         async function saveInvoice() {
@@ -686,7 +685,7 @@
             }
             localStorage.setItem('invoices', JSON.stringify(invoices)); 
             resetForm(); renderInvoices();
-            await syncToGoogleSheets(actionType, targetInvoice); // បញ្ជូនទៅ Google Sheets
+            await syncToGoogleSheets(actionType, targetInvoice); 
         }
 
         document.editInvoice = function(index) {
@@ -793,10 +792,10 @@
 
                 let badgePay = inv.payment === 'Paid' ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
                 
-                // កែសម្រួលត្រង់ចំណុចបង្កើត Link ផែនទី (ជៀសវាងការគាំង)
+                // --- ផ្នែកដែលបានជួសជុល Bug ផែនទីសម្រាប់ទូរស័ព្ទ ---
                 let mapUrl = inv.location;
                 if(inv.location && !inv.location.startsWith("http")) {
-                    mapUrl = `https://www.google.com/maps/search/?api=1&query=${inv.location}`;
+                    mapUrl = `https://www.google.com/maps/search/${encodeURIComponent(inv.location)}`;
                 }
                 let locationMarkup = inv.location ? `<a href="${mapUrl}" target="_blank" class="inline-flex items-center gap-1 text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200 hover:underline">📍 បើកផែនទី</a>` : '<span class="text-xs text-gray-400">📍 គ្មានទីតាំង</span>';
                 let issueMarkup = inv.issue ? '<p class="text-xs bg-red-50 text-red-700 p-1 rounded mt-1 border border-red-100">⚠️ ' + inv.issue + '</p>' : '';
