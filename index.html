@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ប្រព័ន្ធគ្រប់គ្រងអតិថិជន និងការដឹកជញ្ជូន (សិទ្ធិប្រើប្រាស់)</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;600;700&display=swap');
-        body { font-family: 'Kantumruy Pro', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Kantumruuy+Pro:wght@300;400;600;700&display=swap');
+        body { font-family: 'Kantumruuy Pro', sans-serif; }
         .suggestion-box { max-height: 180px; overflow-y: auto; z-index: 50; }
     </style>
 </head>
@@ -25,8 +25,8 @@
         </div>
         
         <div id="loginForm">
-            <div class="mb-4"><label class="block text-sm font-medium mb-1">ឈ្មោះអ្នកប្រើប្រាស់</label><input type="text" id="loginUser" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500"></div>
-            <div class="mb-6"><label class="block text-sm font-medium mb-1">លេខសម្ងាត់</label><input type="password" id="loginPass" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500"></div>
+            <div class="mb-4"><label class="block text-sm font-medium mb-1">ឈ្មោះអ្នកប្រើប្រាស់</label><input type="text" id="loginUser" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500" placeholder="admin"></div>
+            <div class="mb-6"><label class="block text-sm font-medium mb-1">លេខសម្ងាត់</label><input type="password" id="loginPass" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500" placeholder="123456"></div>
             <button onclick="handleLogin()" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">🔑 ចូលប្រើប្រាស់</button>
         </div>
         
@@ -50,9 +50,10 @@
         <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm mb-6 border border-gray-100">
             <div>
                 <h1 class="text-xl font-bold text-gray-800">📦 ប្រព័ន្ធគ្រប់គ្រងទិន្នន័យអតិថិជន និងការដឹក</h1>
-                <div class="flex items-center gap-2 mt-1">
+                <div class="flex flex-wrap items-center gap-2 mt-1">
                     <p class="text-sm text-gray-500">គណនី៖ <span id="currentUserDisplay" class="font-bold text-indigo-600"></span></p>
                     <span id="currentUserRoleBadge" class="text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
+                    <span id="syncStatus" class="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded border border-gray-300 font-medium">🔄 កំពុងដំណើរការ...</span>
                 </div>
             </div>
             <button onclick="handleLogout()" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-600 transition">🚪 ចាកចេញ</button>
@@ -149,7 +150,6 @@
             </div>
 
             <div class="lg:col-span-2 space-y-4">
-                
                 <div id="reportAndImportContainer" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
                         <h4 class="text-xs font-bold text-indigo-900 mb-2">📊 ទាញរបាយការណ៍ប្រចាំថ្ងៃ ខែ ឆ្នាំ</h4>
@@ -165,8 +165,8 @@
                                 </select>
                             </div>
                             <div class="flex gap-1">
-                                <button onclick="exportToExcel()" class="w-1/2 bg-green-600 text-white text-[11px] py-1 rounded font-bold cursor-pointer">Excel</button>
-                                <button onclick="exportToPDF()" class="w-1/2 bg-red-600 text-white text-[11px] py-1 rounded font-bold cursor-pointer">PDF</button>
+                                <button onclick="exportToExcel()" class="w-1/2 bg-green-600 text-white text-[11px] py-1 rounded font-bold cursor-pointer hover:bg-green-700 transition">Excel</button>
+                                <button onclick="exportToPDF()" class="w-1/2 bg-red-600 text-white text-[11px] py-1 rounded font-bold cursor-pointer hover:bg-red-700 transition">PDF</button>
                             </div>
                         </div>
                     </div>
@@ -241,20 +241,69 @@
                             <button onclick="changePage(1)" id="btnNextPage" class="px-3 py-1 text-xs font-bold bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-40 transition cursor-pointer">ទៅមុខ ▶</button>
                         </div>
                     </div>
-
                 </div>
-
             </div>
         </div>
     </div>
 
     <script>
+        // 🔗 ដំណភ្ជាប់ទៅកាន់ Google Apps Script Web App របស់អ្នក (ដាក់ Link របស់អ្នកនៅទីនេះ)
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwe1s4QDH8Ti_NUIwd2o2BwaHyY_GRLVTG_Hz19mrVkyhnhaP1XQQQtuo1Xbkj6qkQFLg/exec"; 
+
         let currentCoordinates = "";
         let currentPage = 1;
         let rowsPerPage = 5; 
-        let currentUserRole = "Admin"; // តម្លៃដើមលំនាំដើម
+        let currentUserRole = "Admin"; 
 
         document.getElementById('reportDate').value = new Date().toISOString().substring(0, 10);
+
+        // ដំណើរការដំបូងពេលបើកទំព័រ App
+        window.onload = function() { 
+            const user = localStorage.getItem('currentUser'); 
+            const role = localStorage.getItem('currentUserRole'); 
+            if(user && role) {
+                showSystem(user, role); 
+            }
+            // ទាញទិន្នន័យពី Google Sheets មកធ្វើបច្ចុប្បន្នភាព
+            fetchInvoicesFromGoogleSheets();
+        }
+
+        // --- 🌐 មុខងារទាញទិន្នន័យអនឡាញពី GOOGLE SHEETS ---
+        async function fetchInvoicesFromGoogleSheets() {
+            if (!SCRIPT_URL) return;
+            const syncBadge = document.getElementById('syncStatus');
+            if(syncBadge) {
+                syncBadge.innerHTML = "🔄 កំពុងទាញទិន្នន័យ...";
+                syncBadge.className = "text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded border border-yellow-300 font-medium";
+            }
+            try {
+                const response = await fetch(SCRIPT_URL + "?action=read");
+                const data = await response.json();
+                if (data && Array.isArray(data)) {
+                    // បម្លែង និងតម្រូវទិន្នន័យដែលទាញបានរួចរក្សាទុកក្នុង LocalStorage
+                    let formattedInvoices = data.filter(row => row[0] !== "ល.រ" && row[0] !== "").map(row => ({
+                        id: row[0] || '', name: row[1] || '', phone: row[2] || '', driver: row[4] || '',
+                        amount: parseFloat(row[5]) || 0, payment: row[6] === 'ទូទាត់រួច' ? 'Paid' : 'Unpaid',
+                        issue: row[7] || '', status: row[3] || 'Stock', location: row[8] || '', dateCreated: row[9] || new Date().toISOString()
+                    }));
+                    
+                    if(formattedInvoices.length > 0) {
+                        localStorage.setItem('invoices', JSON.stringify(formattedInvoices));
+                        renderInvoices();
+                    }
+                    if(syncBadge) {
+                        syncBadge.innerHTML = "✅ Google Sheets Synced";
+                        syncBadge.className = "text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded border border-green-300 font-medium";
+                    }
+                }
+            } catch (error) {
+                console.error("Error syncing Google Sheets:", error);
+                if(syncBadge) {
+                    syncBadge.innerHTML = "❌ បរាជ័យក្នុងការភ្ជាប់";
+                    syncBadge.className = "text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded border border-red-300 font-medium";
+                }
+            }
+        }
 
         // --- 1. មុខងារអាន និង UPLOAD ឯកសារ EXCEL ស្វ័យប្រវត្តិ ---
         function handleExcelUpload(event) {
@@ -394,7 +443,6 @@
             const container = document.getElementById('driverListContainer');
             const selectDropdown = document.getElementById('driverName');
             
-            // បើជា Admin ទើបបង្ហាញប៊ូតុង កែ ឬ លុប អ្នកដឹក
             const showActions = (currentUserRole === 'Admin');
 
             container.innerHTML = drivers.map((driver, index) => `
@@ -545,11 +593,11 @@
             return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth()+1).toString().padStart(2, '0')}-${d.getFullYear()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
         }
 
-        // --- 9. MAPS & LOCATION LOGIC ---
+        // --- 9. MAPS & LOCATION LOGIC (ជួសជុលលីងខូច) ---
         function searchOnGoogleMaps() {
             const query = document.getElementById('searchMapQuery').value.trim();
             if (!query) return alert("សូមវាយបញ្ចូលឈ្មោះទីតាំងដែលចង់ស្វែងរក!");
-            window.open(`http://maps.google.com/?q={encodeURIComponent(query)}`, '_blank');
+            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`, '_blank');
         }
 
         function getCurrentGPS() {
@@ -600,7 +648,6 @@
             const u = document.getElementById('loginUser').value.trim(); 
             const p = document.getElementById('loginPass').value.trim();
             
-            // កូដគណនី Master Admin សម្រាប់ប្រើប្រាស់ដំបូង
             if (u === "admin" && p === "123456") {
                 localStorage.setItem('currentUser', u);
                 localStorage.setItem('currentUserRole', 'Admin');
@@ -625,7 +672,6 @@
             document.getElementById('mainSection').classList.add('hidden');
         }
 
-        // 👮 មុខងារកំណត់ការមើលឃើញផ្អែកលើ Role (Authorization Guard)
         function applyRolePermissions(role) {
             currentUserRole = role;
             const formContainer = document.getElementById('invoiceFormContainer');
@@ -633,7 +679,6 @@
             const reportArea = document.getElementById('reportAndImportContainer');
             const badge = document.getElementById('currentUserRoleBadge');
 
-            // រៀបចំពណ៌ Badge តួនាទី
             badge.innerText = role;
             if (role === 'Admin') {
                 badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800";
@@ -642,9 +687,9 @@
                 reportArea.classList.remove('hidden');
             } else if (role === 'Sale') {
                 badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800";
-                formContainer.classList.remove('hidden'); // Sale អាចមើលឃើញ Form ដើម្បីបង្កើត ឬកែវិក្កយបត្រ
-                driverArea.classList.add('hidden');       // លាក់ប្រអប់គ្រប់គ្រងឈ្មោះអ្នកដឹក
-                reportArea.classList.remove('hidden');    // អាចមើលឃើញកន្លែង Report & Import Excel
+                formContainer.classList.remove('hidden'); 
+                driverArea.classList.add('hidden');       
+                reportArea.classList.remove('hidden');    
             } else if (role === 'Stock') {
                 badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800";
                 formContainer.classList.remove('hidden'); 
@@ -727,7 +772,6 @@
         }
 
         document.updateStatus = function(id, newStatus) {
-            // ការពារសិទ្ធិរបស់ Stock មិនឱ្យដូរស្ថានភាពដឹករបស់ Delivery បានទេ
             if (currentUserRole === 'Stock' && (newStatus === 'Shipping' || newStatus === 'Delivered' || newStatus === 'Returned')) {
                 alert("⚠️ ផ្នែកស្តុក (Stock) អាចប្តូរបានតែស្ថានភាព 'ផ្នែកស្តុក' ឬ 'កំពុងរៀបចំ' ប៉ុណ្ណោះ!");
                 renderInvoices();
@@ -738,7 +782,6 @@
             localStorage.setItem('invoices', JSON.stringify(invoices)); renderInvoices();
         }
 
-        // មុខងារ Render តារាងទិន្នន័យ ព្រមទាំងបែងចែកសិទ្ធិលើប៊ូតុងសកម្មភាពក្នុងជួរនីមួយៗ
         function renderInvoices() {
             const filterStat = document.getElementById('filterStatus').value; 
             const search = document.getElementById('searchQuery').value.toLowerCase().trim();
@@ -787,11 +830,12 @@
                 else if(inv.status === 'Returned') { badgeDeliv = "bg-red-100 text-red-800"; statusText = "ភ្ញៀវបដិសេធ"; }
 
                 let badgePay = inv.payment === 'Paid' ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
-                let locationMarkup = inv.location ? `<a href="${inv.location.startsWith("http") ? inv.location : 'https://maps.app.goo.gl/' + inv.location}" target="_blank" class="inline-flex items-center gap-1 text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200 hover:underline">📍 បើកផែនទី</a>` : '<span class="text-xs text-gray-400">📍 គ្មានទីតាំង</span>';
+                
+                // ជួសជុលលីងផែនទីឱ្យដើរត្រឹមត្រូវ ១០០%
+                let locationMarkup = inv.location ? `<a href="${inv.location.startsWith("http") ? inv.location : 'https://www.google.com/maps/search/?api=1&query=' + inv.location}" target="_blank" class="inline-flex items-center gap-1 text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200 hover:underline">📍 បើកផែនទី</a>` : '<span class="text-xs text-gray-400">📍 គ្មានទីតាំង</span>';
                 let issueMarkup = inv.issue ? '<p class="text-xs bg-red-50 text-red-700 p-1 rounded mt-1 border border-red-100">⚠️ ' + inv.issue + '</p>' : '';
                 let driverMarkup = inv.driver ? `<span class="text-xs font-semibold block text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100 w-fit mt-1">🛵 ${inv.driver}</span>` : '<span class="text-xs text-gray-400 block mt-1">❌ គ្មានអ្នកដឹក</span>';
 
-                // រៀបចំប៊ូតុងសកម្មភាពទៅតាមសិទ្ធិ (Action Buttons Restriction)
                 let actionButtons = '';
                 if (currentUserRole === 'Admin') {
                     actionButtons = `
@@ -807,6 +851,28 @@
                     actionButtons = `
                         <button class="w-full bg-gray-300 text-gray-400 text-xs py-1 rounded font-bold cursor-not-allowed" disabled>✏️ កែ</button>
                         <button class="w-full bg-gray-300 text-gray-400 text-xs py-1 rounded font-bold cursor-not-allowed" disabled>🗑️ លុប</button>
+                    `;
+                }
+
+                // 🔐 កំណត់សិទ្ធិលើប្រអប់ជ្រើសរើស Dropdown ស្ថានភាពសម្រាប់ផ្នែកដឹក (Delivery)
+                let statusDropdownMarkup = '';
+                if (currentUserRole === 'Delivery') {
+                    statusDropdownMarkup = `
+                        <select onchange="document.updateStatus('${inv.id}', this.value)" class="w-full text-xs border rounded p-1 bg-white">
+                            <option value="Shipping" ${inv.status === 'Shipping' ? 'selected' : ''}>🚚 កំពុងដឹក</option>
+                            <option value="Delivered" ${inv.status === 'Delivered' ? 'selected' : ''}>✅ រួចរាល់</option>
+                            <option value="Returned" ${inv.status === 'Returned' ? 'selected' : ''}>❌ បដិសេធ</option>
+                        </select>
+                    `;
+                } else {
+                    statusDropdownMarkup = `
+                        <select onchange="document.updateStatus('${inv.id}', this.value)" class="w-full text-xs border rounded p-1 bg-white">
+                            <option value="Stock" ${inv.status === 'Stock' ? 'selected' : ''}>📦 ផ្នែកស្តុក</option>
+                            <option value="Preparing" ${inv.status === 'Preparing' ? 'selected' : ''}>⏳ ផ្នែករៀបចំ</option>
+                            <option value="Shipping" ${inv.status === 'Shipping' ? 'selected' : ''}>🚚 កំពុងដឹក</option>
+                            <option value="Delivered" ${inv.status === 'Delivered' ? 'selected' : ''}>✅ រួចរាល់</option>
+                            <option value="Returned" ${inv.status === 'Returned' ? 'selected' : ''}>❌ បដិសេធ</option>
+                        </select>
                     `;
                 }
 
@@ -830,25 +896,12 @@
                     <td class="p-3 text-center">
                         <div class="flex flex-col gap-1 justify-center items-center">
                             ${actionButtons}
-                            <select onchange="document.updateStatus('${inv.id}', this.value)" class="w-full text-xs border rounded p-1 bg-white">
-                                <option value="Stock" ${inv.status === 'Stock' ? 'selected' : ''}>📦 ផ្នែកស្តុក</option>
-                                <option value="Preparing" ${inv.status === 'Preparing' ? 'selected' : ''}>⏳ ផ្នែករៀបចំ</option>
-                                <option value="Shipping" ${inv.status === 'Shipping' ? 'selected' : ''}>🚚 កំពុងដឹក</option>
-                                <option value="Delivered" ${inv.status === 'Delivered' ? 'selected' : ''}>✅ រួចរាល់</option>
-                                <option value="Returned" ${inv.status === 'Returned' ? 'selected' : ''}>❌ បដិសេធ</option>
-                            </select>
+                            ${statusDropdownMarkup}
                         </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
-        }
-
-        // ពិនិត្យមើលគណនីពេលទំព័រដំបូងត្រូវបានបើក
-        window.onload = function() { 
-            const user = localStorage.getItem('currentUser'); 
-            const role = localStorage.getItem('currentUserRole'); 
-            if(user && role) showSystem(user, role); 
         }
     </script>
 </body>
