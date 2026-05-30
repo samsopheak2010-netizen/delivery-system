@@ -37,7 +37,6 @@
                 <label class="block text-sm font-medium mb-1">ជ្រើសរើសតួនាទី (Role) *</label>
                 <select id="regRole" class="w-full px-3 py-2 border rounded-md bg-white text-sm focus:outline-indigo-500">
                     <option value="Admin">⭐ Admin (គ្រប់គ្រងទូទៅ)</option>
-                    <option value="Sale">💰 Sale (ផ្នែកលក់ទំនិញ)</option>
                     <option value="Stock">📦 Stock (ផ្នែកស្តុកទំនិញ)</option>
                     <option value="Delivery">🚚 Delivery (ផ្នែកដឹកជញ្ជូន)</option>
                 </select>
@@ -249,12 +248,30 @@
     </div>
 
     <script>
+        // បញ្ចូល Google Web App URL របស់អ្នកនៅទីនេះផ្ទាល់តែម្តង
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwyGBwK59KS4Db1Q_2o4VYKaIte4yGsSetKAvnIaUg7hqP8m9wwNAFFY3HrDB8ZpSb8/exec";
+
         let currentCoordinates = "";
         let currentPage = 1;
         let rowsPerPage = 5; 
-        let currentUserRole = "Admin"; // តម្លៃដើមលំនាំដើម
+        let currentUserRole = "Admin"; 
 
         document.getElementById('reportDate').value = new Date().toISOString().substring(0, 10);
+
+        // មុខងារសម្រាប់ផ្ញើទិន្នន័យទៅកាន់ Google Sheets (Sync Data)
+        async function syncToGoogleSheets(action, data) {
+            if (!SCRIPT_URL) return;
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: action, data: data })
+                });
+            } catch (error) {
+                console.error("Error syncing to Google Sheets:", error);
+            }
+        }
 
         // --- 1. មុខងារអាន និង UPLOAD ឯកសារ EXCEL ស្វ័យប្រវត្តិ ---
         function handleExcelUpload(event) {
@@ -294,10 +311,12 @@
                     if (id && name) {
                         const isExist = invoices.some(inv => inv.id === id);
                         if (!isExist) {
-                            invoices.push({
+                            const newInv = {
                                 id: id, name: name, phone: '', driver: '', amount: amount,
                                 payment: 'Unpaid', issue: '', status: 'Stock', location: '', dateCreated: rightNow 
-                            });
+                            };
+                            invoices.push(newInv);
+                            syncToGoogleSheets('addInvoice', newInv);
                             addedCount++;
                         } else {
                             skippedCount++;
@@ -394,7 +413,6 @@
             const container = document.getElementById('driverListContainer');
             const selectDropdown = document.getElementById('driverName');
             
-            // បើជា Admin ទើបបង្ហាញប៊ូតុង កែ ឬ លុប អ្នកដឹក
             const showActions = (currentUserRole === 'Admin');
 
             container.innerHTML = drivers.map((driver, index) => `
@@ -425,6 +443,7 @@
                 drivers[parseInt(editIdx)] = name;
             }
             localStorage.setItem('drivers', JSON.stringify(drivers));
+            syncToGoogleSheets('syncDrivers', drivers);
             resetDriverForm(); renderDrivers(); renderInvoices();
         }
 
@@ -440,6 +459,7 @@
             if(confirm("តើអ្នកប្រាកដជាចង់លុបអ្នកដឹកនេះមែនទេ?")) {
                 let drivers = getDrivers(); drivers.splice(index, 1);
                 localStorage.setItem('drivers', JSON.stringify(drivers));
+                syncToGoogleSheets('syncDrivers', drivers);
                 resetDriverForm(); renderDrivers(); renderInvoices();
             }
         }
@@ -488,8 +508,10 @@
             if (currentUserRole !== 'Admin') return alert("⚠️ មានតែ Admin ទេ ទើបអាចលុបទិន្នន័យបាន!");
             if(confirm("តើអ្នកពិតជាចង់លុបវិក្កយបត្រនេះមែនទេ?")) {
                 let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+                const removedInvoice = invoices[index];
                 invoices.splice(index, 1);
                 localStorage.setItem('invoices', JSON.stringify(invoices));
+                syncToGoogleSheets('deleteInvoice', { id: removedInvoice.id });
                 resetForm(); renderInvoices();
             }
         }
@@ -600,7 +622,6 @@
             const u = document.getElementById('loginUser').value.trim(); 
             const p = document.getElementById('loginPass').value.trim();
             
-            // កូដគណនី Master Admin សម្រាប់ប្រើប្រាស់ដំបូង
             if (u === "admin" && p === "123456") {
                 localStorage.setItem('currentUser', u);
                 localStorage.setItem('currentUserRole', 'Admin');
@@ -625,7 +646,6 @@
             document.getElementById('mainSection').classList.add('hidden');
         }
 
-        // 👮 មុខងារកំណត់ការមើលឃើញផ្អែកលើ Role (Authorization Guard)
         function applyRolePermissions(role) {
             currentUserRole = role;
             const formContainer = document.getElementById('invoiceFormContainer');
@@ -633,18 +653,12 @@
             const reportArea = document.getElementById('reportAndImportContainer');
             const badge = document.getElementById('currentUserRoleBadge');
 
-            // រៀបចំពណ៌ Badge តួនាទី
             badge.innerText = role;
             if (role === 'Admin') {
                 badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800";
                 formContainer.classList.remove('hidden');
                 driverArea.classList.remove('hidden');
                 reportArea.classList.remove('hidden');
-            } else if (role === 'Sale') {
-                badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800";
-                formContainer.classList.remove('hidden'); // Sale អាចមើលឃើញ Form ដើម្បីបង្កើត ឬកែវិក្កយបត្រ
-                driverArea.classList.add('hidden');       // លាក់ប្រអប់គ្រប់គ្រងឈ្មោះអ្នកដឹក
-                reportArea.classList.remove('hidden');    // អាចមើលឃើញកន្លែង Report & Import Excel
             } else if (role === 'Stock') {
                 badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800";
                 formContainer.classList.remove('hidden'); 
@@ -685,12 +699,17 @@
             let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
             const rightNow = new Date().toISOString();
 
+            let targetInvoice = {};
             if (editIdx === "") {
                 if(invoices.some(inv => inv.id === id)) return alert("លេខកូដវិក្កយបត្រនេះមានរួចហើយ!");
-                invoices.push({id, name, phone, driver, amount, payment, issue, status, location: currentCoordinates, dateCreated: rightNow});
+                targetInvoice = {id, name, phone, driver, amount, payment, issue, status, location: currentCoordinates, dateCreated: rightNow};
+                invoices.push(targetInvoice);
+                syncToGoogleSheets('addInvoice', targetInvoice);
             } else {
                 const index = parseInt(editIdx);
-                invoices[index] = { ...invoices[index], id, name, phone, driver, amount, payment, issue, status, location: currentCoordinates !== "" ? currentCoordinates : invoices[index].location };
+                targetInvoice = { ...invoices[index], id, name, phone, driver, amount, payment, issue, status, location: currentCoordinates !== "" ? currentCoordinates : invoices[index].location };
+                invoices[index] = targetInvoice;
+                syncToGoogleSheets('updateInvoice', targetInvoice);
             }
             localStorage.setItem('invoices', JSON.stringify(invoices)); resetForm(); renderInvoices();
         }
@@ -722,23 +741,39 @@
 
         document.togglePayment = function(id, currentPayment) {
             let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-            invoices = invoices.map(inv => inv.id === id ? {...inv, payment: currentPayment === 'Paid' ? 'Unpaid' : 'Paid'} : inv);
-            localStorage.setItem('invoices', JSON.stringify(invoices)); renderInvoices();
+            let updatedInv = null;
+            invoices = invoices.map(inv => {
+                if (inv.id === id) {
+                    updatedInv = {...inv, payment: currentPayment === 'Paid' ? 'Unpaid' : 'Paid'};
+                    return updatedInv;
+                }
+                return inv;
+            });
+            localStorage.setItem('invoices', JSON.stringify(invoices)); 
+            if(updatedInv) syncToGoogleSheets('updateInvoice', updatedInv);
+            renderInvoices();
         }
 
         document.updateStatus = function(id, newStatus) {
-            // ការពារសិទ្ធិរបស់ Stock មិនឱ្យដូរស្ថានភាពដឹករបស់ Delivery បានទេ
             if (currentUserRole === 'Stock' && (newStatus === 'Shipping' || newStatus === 'Delivered' || newStatus === 'Returned')) {
                 alert("⚠️ ផ្នែកស្តុក (Stock) អាចប្តូរបានតែស្ថានភាព 'ផ្នែកស្តុក' ឬ 'កំពុងរៀបចំ' ប៉ុណ្ណោះ!");
                 renderInvoices();
                 return;
             }
             let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-            invoices = invoices.map(inv => inv.id === id ? {...inv, status: newStatus} : inv);
-            localStorage.setItem('invoices', JSON.stringify(invoices)); renderInvoices();
+            let updatedInv = null;
+            invoices = invoices.map(inv => {
+                if (inv.id === id) {
+                    updatedInv = {...inv, status: newStatus};
+                    return updatedInv;
+                }
+                return inv;
+            });
+            localStorage.setItem('invoices', JSON.stringify(invoices));
+            if(updatedInv) syncToGoogleSheets('updateInvoice', updatedInv);
+            renderInvoices();
         }
 
-        // មុខងារ Render តារាងទិន្នន័យ ព្រមទាំងបែងចែកសិទ្ធិលើប៊ូតុងសកម្មភាពក្នុងជួរនីមួយៗ
         function renderInvoices() {
             const filterStat = document.getElementById('filterStatus').value; 
             const search = document.getElementById('searchQuery').value.toLowerCase().trim();
@@ -791,14 +826,13 @@
                 let issueMarkup = inv.issue ? '<p class="text-xs bg-red-50 text-red-700 p-1 rounded mt-1 border border-red-100">⚠️ ' + inv.issue + '</p>' : '';
                 let driverMarkup = inv.driver ? `<span class="text-xs font-semibold block text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100 w-fit mt-1">🛵 ${inv.driver}</span>` : '<span class="text-xs text-gray-400 block mt-1">❌ គ្មានអ្នកដឹក</span>';
 
-                // រៀបចំប៊ូតុងសកម្មភាពទៅតាមសិទ្ធិ (Action Buttons Restriction)
                 let actionButtons = '';
                 if (currentUserRole === 'Admin') {
                     actionButtons = `
                         <button onclick="document.editInvoice(${actualIndex})" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-xs py-1 rounded font-bold transition">✏️ កែ</button>
                         <button onclick="document.deleteInvoice(${actualIndex})" class="w-full bg-red-500 hover:bg-red-600 text-white text-xs py-1 rounded font-bold transition">🗑️ លុប</button>
                     `;
-                } else if (currentUserRole === 'Sale' || currentUserRole === 'Stock') {
+                } else if (currentUserRole === 'Stock') {
                     actionButtons = `
                         <button onclick="document.editInvoice(${actualIndex})" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-xs py-1 rounded font-bold transition">✏️ កែ</button>
                         <button class="w-full bg-gray-300 text-gray-500 text-xs py-1 rounded font-bold cursor-not-allowed" disabled>🗑️ លុប</button>
@@ -844,7 +878,6 @@
             });
         }
 
-        // ពិនិត្យមើលគណនីពេលទំព័រដំបូងត្រូវបានបើក
         window.onload = function() { 
             const user = localStorage.getItem('currentUser'); 
             const role = localStorage.getItem('currentUserRole'); 
