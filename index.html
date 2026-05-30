@@ -25,8 +25,14 @@
         </div>
         
         <div id="loginForm">
-            <div class="mb-4"><label class="block text-sm font-medium mb-1">ឈ្មោះអ្នកប្រើប្រាស់</label><input type="text" id="loginUser" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500" placeholder="admin"></div>
-            <div class="mb-6"><label class="block text-sm font-medium mb-1">លេខសម្ងាត់</label><input type="password" id="loginPass" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500" placeholder="123456"></div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">ឈ្មោះអ្នកប្រើប្រាស់</label>
+                <input type="text" id="loginUser" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500" placeholder="វាយឈ្មោះគណនី">
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-1">លេខសម្ងាត់</label>
+                <input type="password" id="loginPass" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500" placeholder="••••••">
+            </div>
             <button onclick="handleLogin()" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">🔑 ចូលប្រើប្រាស់</button>
         </div>
         
@@ -53,7 +59,11 @@
                 <div class="flex flex-wrap items-center gap-2 mt-1">
                     <p class="text-sm text-gray-500">គណនី៖ <span id="currentUserDisplay" class="font-bold text-indigo-600"></span></p>
                     <span id="currentUserRoleBadge" class="text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
-                    <span id="syncStatus" class="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded border border-gray-300 font-medium">🔄 កំពុងដំណើរការ...</span>
+                    
+                    <div class="flex items-center gap-1.5 ml-2">
+                        <span id="syncStatus" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded border border-blue-200 font-medium">📱 ទិន្នន័យក្នុងម៉ាស៊ីន</span>
+                        <button onclick="fetchInvoicesFromGoogleSheets()" id="btnSync" class="text-[10px] bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-0.5 rounded font-bold transition flex items-center gap-0.5">🔄 ទាញពី Google Sheet</button>
+                    </div>
                 </div>
             </div>
             <button onclick="handleLogout()" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-600 transition">🚪 ចាកចេញ</button>
@@ -206,7 +216,7 @@
                                 <span>📄 បង្ហាញ៖</span>
                                 <select id="rowsPerPageSelect" onchange="changeRowsPerPage(this.value)" class="bg-white border rounded px-2 py-1 text-xs focus:outline-indigo-500 font-bold text-gray-700">
                                     <option value="5">5 ជួរ</option>
-                                    <option value="10">10 ជួរ</option>
+                                    <option value="10" selected>10 ជួរ</option>
                                     <option value="20">20 ជួរ</option>
                                     <option value="all">ទាំងអស់ (All)</option>
                                 </select>
@@ -247,12 +257,12 @@
     </div>
 
     <script>
-        // 🔗 ដំណភ្ជាប់ទៅកាន់ Google Apps Script Web App របស់អ្នក (ដាក់ Link របស់អ្នកនៅទីនេះ)
+        // 🔗 ដំណភ្ជាប់ទៅកាន់ Google Apps Script Web App របស់អ្នក
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwe1s4QDH8Ti_NUIwd2o2BwaHyY_GRLVTG_Hz19mrVkyhnhaP1XQQQtuo1Xbkj6qkQFLg/exec"; 
 
         let currentCoordinates = "";
         let currentPage = 1;
-        let rowsPerPage = 5; 
+        let rowsPerPage = 10; 
         let currentUserRole = "Admin"; 
 
         document.getElementById('reportDate').value = new Date().toISOString().substring(0, 10);
@@ -263,45 +273,74 @@
             const role = localStorage.getItem('currentUserRole'); 
             if(user && role) {
                 showSystem(user, role); 
+            } else {
+                renderInvoices();
             }
-            // ទាញទិន្នន័យពី Google Sheets មកធ្វើបច្ចុប្បន្នភាព
-            fetchInvoicesFromGoogleSheets();
         }
 
-        // --- 🌐 មុខងារទាញទិន្នន័យអនឡាញពី GOOGLE SHEETS ---
+        // --- 🌐 មុខងារទាញទិន្នន័យអនឡាញពី GOOGLE SHEETS (ជួសជុលការពារការគាំង និងបញ្ជាដោយប៊ូតុង) ---
         async function fetchInvoicesFromGoogleSheets() {
-            if (!SCRIPT_URL) return;
+            if (!SCRIPT_URL) return alert("សូមកំណត់លីង SCRIPT_URL ជាមុនសិន!");
+            
             const syncBadge = document.getElementById('syncStatus');
+            const btnSync = document.getElementById('btnSync');
+            
             if(syncBadge) {
                 syncBadge.innerHTML = "🔄 កំពុងទាញទិន្នន័យ...";
                 syncBadge.className = "text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded border border-yellow-300 font-medium";
             }
+            if(btnSync) btnSync.disabled = true;
+
             try {
                 const response = await fetch(SCRIPT_URL + "?action=read");
                 const data = await response.json();
+                
                 if (data && Array.isArray(data)) {
-                    // បម្លែង និងតម្រូវទិន្នន័យដែលទាញបានរួចរក្សាទុកក្នុង LocalStorage
-                    let formattedInvoices = data.filter(row => row[0] !== "ល.រ" && row[0] !== "").map(row => ({
-                        id: row[0] || '', name: row[1] || '', phone: row[2] || '', driver: row[4] || '',
-                        amount: parseFloat(row[5]) || 0, payment: row[6] === 'ទូទាត់រួច' ? 'Paid' : 'Unpaid',
-                        issue: row[7] || '', status: row[3] || 'Stock', location: row[8] || '', dateCreated: row[9] || new Date().toISOString()
-                    }));
+                    // ទាញយកទិន្នន័យចាស់ដែលមានស្រាប់មកផ្ទៀងផ្ទាត់
+                    let localInvoices = JSON.parse(localStorage.getItem('invoices')) || [];
                     
-                    if(formattedInvoices.length > 0) {
-                        localStorage.setItem('invoices', JSON.stringify(formattedInvoices));
-                        renderInvoices();
-                    }
+                    // បម្លែងទិន្នន័យពី Google Sheets មកជាទម្រង់ Object របស់ App
+                    let sheetInvoices = data.filter(row => row[0] !== "ល.រ" && row[0] !== "" && row[0] !== undefined).map(row => {
+                        return {
+                            id: (row[0] || '').toString().trim().toUpperCase(),
+                            name: (row[1] || '').toString().trim(),
+                            phone: (row[2] || '').toString().trim(),
+                            driver: (row[4] || '').toString().trim(),
+                            amount: parseFloat(row[5]) || 0,
+                            payment: row[6] === 'ទូទាត់រួច' ? 'Paid' : 'Unpaid',
+                            issue: (row[7] || '').toString().trim(),
+                            status: (row[3] || 'Stock').toString().trim(),
+                            location: (row[8] || '').toString().trim(),
+                            dateCreated: row[9] || new Date().toISOString()
+                        };
+                    });
+
+                    // ធ្វើការច្របាច់បញ្ចូលគ្នា (Merge) ដោយមិនឱ្យជាន់ ID គ្នា
+                    sheetInvoices.forEach(sheetInv => {
+                        const exists = localInvoices.some(localInv => localInv.id === sheetInv.id);
+                        if (!exists && sheetInv.id !== "") {
+                            localInvoices.push(sheetInv);
+                        }
+                    });
+                    
+                    localStorage.setItem('invoices', JSON.stringify(localInvoices));
+                    renderInvoices();
+                    
                     if(syncBadge) {
-                        syncBadge.innerHTML = "✅ Google Sheets Synced";
+                        syncBadge.innerHTML = "✅ ទាញជោគជ័យ";
                         syncBadge.className = "text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded border border-green-300 font-medium";
                     }
+                    alert("🎯 បានទាញយក និងធ្វើបច្ចុប្បន្នភាពទិន្នន័យពី Google Sheets រួចរាល់!");
                 }
             } catch (error) {
                 console.error("Error syncing Google Sheets:", error);
                 if(syncBadge) {
-                    syncBadge.innerHTML = "❌ បរាជ័យក្នុងការភ្ជាប់";
+                    syncBadge.innerHTML = "❌ ភ្ជាប់បរាជ័យ";
                     syncBadge.className = "text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded border border-red-300 font-medium";
                 }
+                alert("⚠️ មិនអាចទាញទិន្នន័យបានទេ! សូមពិនិត្យមើលប្រព័ន្ធអ៊ីនធឺណិត ឬ Web App URL របស់អ្នក។");
+            } finally {
+                if(btnSync) btnSync.disabled = false;
             }
         }
 
@@ -593,7 +632,7 @@
             return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth()+1).toString().padStart(2, '0')}-${d.getFullYear()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
         }
 
-        // --- 9. MAPS & LOCATION LOGIC (ជួសជុលលីងខូច) ---
+        // --- 9. MAPS & LOCATION LOGIC ---
         function searchOnGoogleMaps() {
             const query = document.getElementById('searchMapQuery').value.trim();
             if (!query) return alert("សូមវាយបញ្ចូលឈ្មោះទីតាំងដែលចង់ស្វែងរក!");
@@ -786,6 +825,7 @@
             const filterStat = document.getElementById('filterStatus').value; 
             const search = document.getElementById('searchQuery').value.toLowerCase().trim();
             const tbody = document.getElementById('invoiceTableBody'); 
+            if(!tbody) return;
             tbody.innerHTML = '';
             
             let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
@@ -831,7 +871,6 @@
 
                 let badgePay = inv.payment === 'Paid' ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
                 
-                // ជួសជុលលីងផែនទីឱ្យដើរត្រឹមត្រូវ ១០០%
                 let locationMarkup = inv.location ? `<a href="${inv.location.startsWith("http") ? inv.location : 'https://www.google.com/maps/search/?api=1&query=' + inv.location}" target="_blank" class="inline-flex items-center gap-1 text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200 hover:underline">📍 បើកផែនទី</a>` : '<span class="text-xs text-gray-400">📍 គ្មានទីតាំង</span>';
                 let issueMarkup = inv.issue ? '<p class="text-xs bg-red-50 text-red-700 p-1 rounded mt-1 border border-red-100">⚠️ ' + inv.issue + '</p>' : '';
                 let driverMarkup = inv.driver ? `<span class="text-xs font-semibold block text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100 w-fit mt-1">🛵 ${inv.driver}</span>` : '<span class="text-xs text-gray-400 block mt-1">❌ គ្មានអ្នកដឹក</span>';
@@ -854,7 +893,6 @@
                     `;
                 }
 
-                // 🔐 កំណត់សិទ្ធិលើប្រអប់ជ្រើសរើស Dropdown ស្ថានភាពសម្រាប់ផ្នែកដឹក (Delivery)
                 let statusDropdownMarkup = '';
                 if (currentUserRole === 'Delivery') {
                     statusDropdownMarkup = `
