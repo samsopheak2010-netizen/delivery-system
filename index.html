@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ប្រព័ន្ធគ្រប់គ្រងអតិថិជន និងការដឹកជញ្ជូន (សិទ្ធិប្រើប្រាស់)</title>
+    <title>ប្រព័ន្ធគ្រប់គ្រងអតិថិជន និងការដឹកជញ្ជូន (Cloud Sync)</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -61,7 +61,6 @@
             <div class="space-y-6">
                 <div id="invoiceFormContainer" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 h-fit">
                     <h3 id="formTitle" class="text-lg font-bold border-b pb-2 mb-4 text-gray-700">📝 បង្កើតទិន្នន័យអតិថិជនថ្មី</h3>
-                    
                     <input type="hidden" id="editIndex" value="">
 
                     <div class="mb-3 relative">
@@ -148,7 +147,6 @@
             </div>
 
             <div class="lg:col-span-2 space-y-4">
-                
                 <div id="reportAndImportContainer" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
                         <h4 class="text-xs font-bold text-indigo-900 mb-2">📊 ទាញរបាយការណ៍ប្រចាំថ្ងៃ ខែ ឆ្នាំ</h4>
@@ -240,16 +238,16 @@
                             <button onclick="changePage(1)" id="btnNextPage" class="px-3 py-1 text-xs font-bold bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-40 transition cursor-pointer">ទៅមុខ ▶</button>
                         </div>
                     </div>
-
                 </div>
-
             </div>
         </div>
     </div>
 
     <script>
-        // 💡 ផាសលីង Google Web App URL របស់អ្នកនៅក្នុងសញ្ញាសម្រង់ខាងក្រោមនេះ
-        const SCRIPT_URL = "សូមផាសលីង_WEB_APP_URL_ដែល_COPY_បាន_នៅ_ទីនេះ";
+        // =======================================================
+        // ជួរទី ២៦២៖ កន្លែងសម្រាប់ដាក់ Web App URL ពី Google Apps Script
+        // =======================================================
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwe1s4QDH8Ti_NUIwd2o2BwaHYy_GRLVTG_Hz19mrVkyhnhaP1XQQQtuolXbkj6qkQFLg/exec";
 
         let currentCoordinates = "";
         let currentPage = 1;
@@ -258,87 +256,613 @@
 
         document.getElementById('reportDate').value = new Date().toISOString().substring(0, 10);
 
-        // 🔄 មុខងារទាញទិន្នន័យពី Google Sheets មកបង្ហាញលើ App ផ្ទាល់
-       // ==========================================
-// ជួរទី ២៦២៖ មុខងារភ្ជាប់ និង Sync ទិន្នន័យទៅកាន់ Google Sheets
-// ==========================================
+        // 🔄 មុខងារទាញទិន្នន័យពី Google Sheets មកបង្ហាញលើ App
+        async function fetchFromGoogleSheets() {
+            if (!SCRIPT_URL || SCRIPT_URL.includes("សូមផាស")) return;
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getData`);
+                const data = await response.json();
+                if (data) {
+                    if (data.invoices) localStorage.setItem('invoices', JSON.stringify(data.invoices));
+                    if (data.drivers) localStorage.setItem('drivers', JSON.stringify(data.drivers.map(d => typeof d === 'string' ? d : d.name)));
+                    renderDrivers();
+                    renderInvoices();
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwe1s4QDH8Ti_NUIwd2o2BwaHYy_GRLVTG_Hz19mrVkyhnhaP1XQQQtuolXbkj6qkQFLg/execះ"; 
+        // 📤 មុខងារបញ្ជូនទិន្នន័យទៅរក្សាទុកលើ Google Sheets
+        async function syncToGoogleSheets(action, data) {
+            if (!SCRIPT_URL || SCRIPT_URL.includes("សូមផាស")) return;
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: action, data: data })
+                });
+            } catch (error) {
+                console.error("Error syncing data:", error);
+            }
+        }
 
-// មុខងារសម្រាប់ផ្ញើទិន្នន័យទៅកាន់ Google Sheets (Sync Data)
-async function syncToGoogleSheets(action, data) {
-    if (!SCRIPT_URL || SCRIPT_URL.includes("សូមផាសលីង")) return;
-    try {
-        await fetch(SCRIPT_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: action, data: data })
-        });
-    } catch (error) {
-        console.error("Error syncing to Google Sheets:", error);
-    }
-}
+        function handleExcelUpload(event) {
+            if (currentUserRole === 'Delivery') return alert("⚠️ អ្នកគ្មានសិទ្ធិប្រើប្រាស់មុខងារនេះទេ!");
+            const file = event.target.files[0];
+            if (!file) return;
 
-// 🔄 មុខងារទាញទិន្នន័យពី Google Sheets មកបង្ហាញលើ App ផ្ទាល់
-async function fetchFromGoogleSheets() {
-    if (!SCRIPT_URL || SCRIPT_URL.includes("សូមផាសលីង")) return;
-    try {
-        const response = await fetch(SCRIPT_URL);
-        const remoteInvoices = await response.json();
-        if (Array.isArray(remoteInvoices)) {
-            localStorage.setItem('invoices', JSON.stringify(remoteInvoices));
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                
+                const rows = XLSX.utils.sheet_to_json(worksheet);
+                if (rows.length === 0) return alert("ឯកសារគ្មានទិន្នន័យទេ!");
+
+                let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+                const rightNow = new Date().toISOString(); 
+                let addedCount = 0;
+                let skippedCount = 0;
+
+                rows.forEach(row => {
+                    let idKey = Object.keys(row).find(k => k.trim().toLowerCase() === 'invoice no.' || k.trim().toLowerCase() === 'invoice no');
+                    let nameKey = Object.keys(row).find(k => k.trim().toLowerCase() === 'customer name' || k.trim().toLowerCase() === 'customer');
+                    let amountKey = Object.keys(row).find(k => k.trim().toLowerCase() === 'invoice amount' || k.trim().toLowerCase() === 'amount');
+
+                    const id = idKey ? (row[idKey] || '').toString().trim().toUpperCase() : '';
+                    const name = nameKey ? (row[nameKey] || '').toString().trim() : '';
+                    let amountRaw = amountKey ? row[amountKey] : 0;
+                    
+                    if (typeof amountRaw === 'string') {
+                        amountRaw = amountRaw.replace(/[^0-9.-]/g, '');
+                    }
+                    const amount = parseFloat(amountRaw) || 0;
+
+                    if (id && name) {
+                        const isExist = invoices.some(inv => inv.id === id);
+                        if (!isExist) {
+                            invoices.push({
+                                id: id, name: name, phone: '', driver: '', amount: amount,
+                                payment: 'Unpaid', issue: '', status: 'Stock', location: '', dateCreated: rightNow 
+                            });
+                            addedCount++;
+                        } else {
+                            skippedCount++;
+                        }
+                    }
+                });
+
+                localStorage.setItem('invoices', JSON.stringify(invoices));
+                currentPage = 1; 
+                renderInvoices();
+                await syncToGoogleSheets('syncInvoices', invoices);
+                alert(`🎯 ដំណើរការរួចរាល់!\n- បានបញ្ចូលជោគជ័យ៖ ${addedCount} វិក្កយបត្រ\n- បានរំលង៖ ${skippedCount} វិក្កយបត្រ`);
+                document.getElementById('excelFileInput').value = ''; 
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function changeRowsPerPage(value) {
+            rowsPerPage = value === 'all' ? 999999 : parseInt(value);
+            currentPage = 1; 
             renderInvoices();
         }
-    } catch (error) {
-        console.error("Error fetching from Google Sheets:", error);
-    }
-}
 
-// ==========================================
-// 🛠️ កែសម្រួលមុខងារដែលមានស្រាប់ ដើម្បីឲ្យរត់ទៅរក Cloud Sync ស្វ័យប្រវត្តិ
-// ==========================================
+        function handleSearchInput(val) {
+            currentPage = 1; 
+            renderInvoices();
 
-// កែប្រែក្នុងមុខងារ saveInvoice() ត្រង់កន្លែងរក្សាទុក
-const originalSaveInvoice = saveInvoice;
-saveInvoice = function() {
-    originalSaveInvoice();
-    let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-    // ផ្ញើទិន្នន័យចុងក្រោយបង្អស់ទៅ Cloud
-    syncToGoogleSheets("syncAll", invoices);
-};
+            const sugBox = document.getElementById('searchSuggestions');
+            const search = val.toLowerCase().trim();
 
-// កែប្រែក្នុងមុខងារ updateStatus()
-const originalUpdateStatus = document.updateStatus;
-document.updateStatus = function(id, newStatus) {
-    // ហៅមុខងារដើមពិនិត្យ Permission សិន
-    originalUpdateStatus(id, newStatus);
-    let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-    syncToGoogleSheets("syncAll", invoices);
-};
+            if (!search) {
+                sugBox.classList.add('hidden');
+                return;
+            }
 
-// កែប្រែក្នុងមុខងារ togglePayment()
-const originalTogglePayment = document.togglePayment;
-document.togglePayment = function(id, currentPayment) {
-    originalTogglePayment(id, currentPayment);
-    let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-    syncToGoogleSheets("syncAll", invoices);
-};
+            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+            let matches = invoices.filter(inv => 
+                inv.id.toLowerCase().includes(search) || 
+                inv.name.toLowerCase().includes(search)
+            );
 
-// កែប្រែក្នុងមុខងារ deleteInvoice()
-const originalDeleteInvoice = document.deleteInvoice;
-document.deleteInvoice = function(index) {
-    originalDeleteInvoice(index);
-    let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
-    syncToGoogleSheets("syncAll", invoices);
-};
+            if (matches.length > 0) {
+                sugBox.innerHTML = matches.map(inv => `
+                    <div onclick="selectSearchSuggestion('${inv.id}')" class="p-2.5 hover:bg-indigo-50 border-b border-gray-50 cursor-pointer text-xs flex justify-between items-center transition">
+                        <div>
+                            <span class="font-bold text-indigo-600 block">🆔 ${inv.id}</span>
+                            <span class="text-gray-600 font-medium">${inv.name}</span>
+                        </div>
+                        <span class="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">$${inv.amount.toFixed(2)}</span>
+                    </div>
+                `).join('');
+                sugBox.classList.remove('hidden');
+            } else {
+                sugBox.classList.add('hidden');
+            }
+        }
 
-// កែប្រែត្រង់ window.onload ដើម្បីឲ្យវាទាញទិន្នន័យថ្មីពី Cloud មកបង្ហាញពេលបើក App ដំបូង
-window.onload = function() { 
-    const user = localStorage.getItem('currentUser'); 
-    const role = localStorage.getItem('currentUserRole'); 
-    if(user && role) {
-        showSystem(user, role); 
-        fetchFromGoogleSheets(); // ទាញទិន្នន័យថ្មីពី Google Sheets
-    }
-}
+        function selectSearchSuggestion(id) {
+            document.getElementById('searchQuery').value = id;
+            document.getElementById('searchSuggestions').classList.add('hidden');
+            currentPage = 1;
+            renderInvoices();
+        }
+
+        document.addEventListener('click', function(e) {
+            if (e.target.id !== 'searchQuery') {
+                document.getElementById('searchSuggestions').classList.add('hidden');
+            }
+        });
+
+        function changePage(direction) {
+            currentPage += direction;
+            renderInvoices();
+        }
+
+        function getDrivers() {
+            let drivers = JSON.parse(localStorage.getItem('drivers'));
+            if (!drivers || drivers.length === 0) {
+                drivers = ["អ្នកដឹក ភារម្យ", "អ្នកដឹក វិសាល", "អ្នកដឹក សុជាតិ"];
+                localStorage.setItem('drivers', JSON.stringify(drivers));
+            }
+            return drivers;
+        }
+
+        function renderDrivers() {
+            const drivers = getDrivers();
+            const container = document.getElementById('driverListContainer');
+            const selectDropdown = document.getElementById('driverName');
+            const showActions = (currentUserRole === 'Admin');
+
+            container.innerHTML = drivers.map((driver, index) => `
+                <div class="flex justify-between items-center bg-gray-50 p-2 border rounded-md text-xs">
+                    <span class="font-medium text-gray-700">🛵 ${driver}</span>
+                    ${showActions ? `
+                    <div class="flex gap-1">
+                        <button onclick="editDriver(${index})" class="text-blue-600 hover:text-blue-800 font-bold px-1">កែ</button>
+                        <button onclick="deleteDriver(${index})" class="text-red-500 hover:text-red-700 font-bold px-1">លុប</button>
+                    </div>` : ''}
+                </div>
+            `).join('');
+
+            selectDropdown.innerHTML = `<option value="">-- មិនទាន់មានអ្នកដឹក --</option>` + drivers.map(d => `<option value="${d}">${d}</option>`).join('');
+        }
+
+        async function saveDriver() {
+            if (currentUserRole !== 'Admin') return alert("⚠️ មានតែ Admin ទេ ទើបអាចគ្រប់គ្រងអ្នកដឹកបាន!");
+            const name = document.getElementById('driverInputName').value.trim();
+            if (!name) return alert("សូមបញ្ចូលឈ្មោះអ្នកដឹក!");
+            let drivers = getDrivers();
+            const editIdx = document.getElementById('editDriverIndex').value;
+
+            if (editIdx === "") {
+                if (drivers.includes(name)) return alert("ឈ្មោះអ្នកដឹកនេះមានរួចហើយ!");
+                drivers.push(name);
+            } else {
+                drivers[parseInt(editIdx)] = name;
+            }
+            localStorage.setItem('drivers', JSON.stringify(drivers));
+            resetDriverForm(); renderDrivers(); renderInvoices();
+            await syncToGoogleSheets('syncDrivers', drivers);
+        }
+
+        function editDriver(index) {
+            const drivers = getDrivers();
+            document.getElementById('driverInputName').value = drivers[index];
+            document.getElementById('editDriverIndex').value = index;
+            document.getElementById('btnSaveDriver').innerText = "ធ្វើបច្ចុប្បន្នភាព";
+            document.getElementById('btnCancelDriver').classList.remove('hidden');
+        }
+
+        async function deleteDriver(index) {
+            if(confirm("តើអ្នកប្រាកដជាចង់លុបអ្នកដឹកនេះមែនទេ?")) {
+                let drivers = getDrivers(); drivers.splice(index, 1);
+                localStorage.setItem('drivers', JSON.stringify(drivers));
+                resetDriverForm(); renderDrivers(); renderInvoices();
+                await syncToGoogleSheets('syncDrivers', drivers);
+            }
+        }
+
+        function resetDriverForm() {
+            document.getElementById('driverInputName').value = ""; document.getElementById('editDriverIndex').value = "";
+            document.getElementById('btnSaveDriver').innerText = "បន្ថែម"; document.getElementById('btnCancelDriver').classList.add('hidden');
+        }
+
+        function handleIdInput(val) {
+            val = val.toUpperCase(); document.getElementById('invId').value = val;
+            const suggestions = document.getElementById('idSuggestions');
+            if(!val) { suggestions.classList.add('hidden'); return; }
+            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+            let matches = [...new Set(invoices.map(i => i.id).filter(id => id.includes(val)))];
+            if(matches.length > 0) {
+                suggestions.innerHTML = matches.map(m => `<div onclick="selectFormSuggestion('invId', '${m}', 'idSuggestions')" class="p-2 hover:bg-gray-100 cursor-pointer text-sm font-bold uppercase">${m}</div>`).join('');
+                suggestions.classList.remove('hidden');
+            } else { suggestions.classList.add('hidden'); }
+        }
+
+        function handleNameInput(val) {
+            const suggestions = document.getElementById('nameSuggestions');
+            if(!val) { suggestions.classList.add('hidden'); return; }
+            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+            let matches = [...new Set(invoices.map(i => i.name).filter(name => name.toLowerCase().includes(val.toLowerCase())))];
+            if(matches.length > 0) {
+                suggestions.innerHTML = matches.map(m => `<div onclick="selectFormSuggestion('custName', '${m}', 'nameSuggestions')" class="p-2 hover:bg-gray-100 cursor-pointer text-sm">${m}</div>`).join('');
+                suggestions.classList.remove('hidden');
+            } else { suggestions.classList.add('hidden'); }
+        }
+
+        function selectFormSuggestion(inputId, value, boxId) {
+            document.getElementById(inputId).value = value;
+            document.getElementById(boxId).classList.add('hidden');
+            if(inputId === 'invId' && currentUserRole !== 'Delivery') {
+                let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+                let idx = invoices.findIndex(i => i.id === value);
+                if(idx !== -1) document.editInvoice(idx);
+            }
+        }
+
+        document.deleteInvoice = async function(index) {
+            if (currentUserRole !== 'Admin') return alert("⚠️ មានតែ Admin ទេ ទើបអាចលុបទិន្នន័យបាន!");
+            if(confirm("តើអ្នកពិតជាចង់លុបវិក្កយបត្រនេះមែនទេ?")) {
+                let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+                invoices.splice(index, 1);
+                localStorage.setItem('invoices', JSON.stringify(invoices));
+                resetForm(); renderInvoices();
+                await syncToGoogleSheets('syncInvoices', invoices);
+            }
+        }
+
+        function getFilteredReportData() {
+            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+            const filterType = document.getElementById('reportFilterType').value;
+            const chosenDateStr = document.getElementById('reportDate').value;
+            if(!chosenDateStr) { alert("សូមជ្រើសរើសកាលបរិច្ឆេទ!"); return []; }
+
+            const chosenDate = new Date(chosenDateStr);
+            return invoices.filter(inv => {
+                const invDate = inv.dateCreated ? new Date(inv.dateCreated) : new Date();
+                if(filterType === 'day') {
+                    return invDate.getFullYear() === chosenDate.getFullYear() && invDate.getMonth() === chosenDate.getMonth() && invDate.getDate() === chosenDate.getDate();
+                } else if(filterType === 'month') {
+                    return invDate.getFullYear() === chosenDate.getFullYear() && invDate.getMonth() === chosenDate.getMonth();
+                } else if(filterType === 'year') {
+                    return invDate.getFullYear() === chosenDate.getFullYear();
+                }
+                return true;
+            });
+        }
+
+        function exportToExcel() {
+            const data = getFilteredReportData();
+            if(data.length === 0) return alert("មិនមានទិន្នន័យសម្រាប់ទាញយកទេ!");
+            const excelData = data.map((inv, idx) => ({
+                "ល.រ": idx + 1, "លេខវិក្កយបត្រ": inv.id, "ឈ្មោះអតិថិជន": inv.name, "លេខទូរស័ព្ទ": inv.phone || '-',
+                "ទឹកប្រាក់ ($)": inv.amount, "ការទូទាត់": inv.payment === 'Paid' ? 'ទូទាត់រួច' : 'មិនទាន់ទូទាត់',
+                "អ្នកដឹក (Driver)": inv.driver || 'មិនទាន់មាន', "ស្ថានភាពដឹក": inv.status, "កាលបរិច្ឆេទបង្កើត": inv.dateCreated ? formatKhmerDate(inv.dateCreated) : '-'
+            }));
+            const worksheet = XLSX.utils.json_to_sheet(excelData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
+            XLSX.writeFile(workbook, `Report_${document.getElementById('reportFilterType').value}_${document.getElementById('reportDate').value}.xlsx`);
+        }
+
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            const data = getFilteredReportData();
+            if(data.length === 0) return alert("មិនមានទិន្នន័យសម្រាប់ទាញយកទេ!");
+            doc.text(`Delivery Report (${document.getElementById('reportFilterType').value.toUpperCase()})`, 14, 15);
+            const tableRows = data.map((inv, idx) => [idx + 1, inv.id, inv.name, inv.phone || '-', `$${inv.amount.toFixed(2)}`, inv.payment === 'Paid' ? 'Paid' : 'Unpaid', inv.driver || '-', inv.status]);
+            doc.autoTable({ head: [['No', 'Invoice ID', 'Customer', 'Phone', 'Amount', 'Payment', 'Driver', 'Status']], body: tableRows, startY: 30, styles: { fontSize: 8 } });
+            doc.save(`Report_${document.getElementById('reportDate').value}.pdf`);
+        }
+
+        function formatKhmerDate(isoString) {
+            if(!isoString) return "-";
+            const d = new Date(isoString);
+            return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth()+1).toString().padStart(2, '0')}-${d.getFullYear()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+        }
+
+        function searchOnGoogleMaps() {
+            const query = document.getElementById('searchMapQuery').value.trim();
+            if (!query) return alert("សូមវាយបញ្ចូលឈ្មោះទីតាំងដែលចង់ស្វែងរក!");
+            window.open(`http://maps.google.com/?q=${encodeURIComponent(query)}`, '_blank');
+        }
+
+        function getCurrentGPS() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    currentCoordinates = position.coords.latitude + "," + position.coords.longitude;
+                    document.getElementById('invLocation').value = currentCoordinates;
+                    document.getElementById('mapsLinkInput').value = ""; 
+                }, function() { alert("សូមបើកសិទ្ធិ Location!"); });
+            }
+        }
+
+        function extractCoordsFromLink() {
+            const urlString = document.getElementById('mapsLinkInput').value.trim();
+            if (!urlString) { currentCoordinates = ""; document.getElementById('invLocation').value = ""; return; }
+            const regex = /@(-?\d+\.\d+),(-?\d+\.\d+)/; const match = urlString.match(regex);
+            if (match && match[1] && match[2]) {
+                currentCoordinates = match[1] + "," + match[2]; document.getElementById('invLocation').value = currentCoordinates;
+            } else {
+                currentCoordinates = urlString; document.getElementById('invLocation').value = "🔗 ទីតាំងតាមរយៈ Link ផែនទី";
+            }
+        }
+
+        function switchTab(type) {
+            if(type === 'login') {
+                document.getElementById('loginForm').classList.remove('hidden'); document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('tabLoginBtn').className = "w-1/2 pb-2 text-center font-semibold border-b-2 border-indigo-500 text-indigo-600";
+                document.getElementById('tabRegisterBtn').className = "w-1/2 pb-2 text-center font-semibold text-gray-500 border-b-2 border-transparent";
+            } else {
+                document.getElementById('loginForm').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden');
+                document.getElementById('tabLoginBtn').className = "w-1/2 pb-2 text-center font-semibold text-gray-500 border-b-2 border-transparent";
+                document.getElementById('tabRegisterBtn').className = "w-1/2 pb-2 text-center font-semibold border-b-2 border-green-500 text-green-600";
+            }
+        }
+
+        function handleRegister() {
+            const u = document.getElementById('regUser').value.trim(); 
+            const p = document.getElementById('regPass').value.trim();
+            const role = document.getElementById('regRole').value;
+            if(!u || !p) return alert("សូមបំពេញព័ត៌មាន!");
+            
+            let users = JSON.parse(localStorage.getItem('users_v2')) || {};
+            if(users[u]) return alert("ឈ្មោះនេះមានរួចហើយ!");
+            
+            users[u] = { password: p, role: role };
+            localStorage.setItem('users_v2', JSON.stringify(users));
+            alert("✅ ចុះឈ្មោះគណនីជោគជ័យ ជាមួយតួនាទីជា " + role); switchTab('login');
+        }
+
+        function handleLogin() {
+            const u = document.getElementById('loginUser').value.trim(); 
+            const p = document.getElementById('loginPass').value.trim();
+            
+            if (u === "admin" && p === "123456") {
+                localStorage.setItem('currentUser', u);
+                localStorage.setItem('currentUserRole', 'Admin');
+                showSystem(u, 'Admin');
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('users_v2')) || {};
+            if(users[u] && users[u].password === p) { 
+                localStorage.setItem('currentUser', u);
+                localStorage.setItem('currentUserRole', users[u].role);
+                showSystem(u, users[u].role); 
+            } else { 
+                alert("❌ ឈ្មោះ ឬលេខសម្ងាត់មិនត្រឹមត្រូវ!"); 
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('currentUserRole');
+            document.getElementById('authSection').classList.remove('hidden'); 
+            document.getElementById('mainSection').classList.add('hidden');
+        }
+
+        function applyRolePermissions(role) {
+            currentUserRole = role;
+            const formContainer = document.getElementById('invoiceFormContainer');
+            const driverArea = document.getElementById('driverFormArea');
+            const reportArea = document.getElementById('reportAndImportContainer');
+            const badge = document.getElementById('currentUserRoleBadge');
+
+            badge.innerText = role;
+            if (role === 'Admin') {
+                badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800";
+                formContainer.classList.remove('hidden');
+                driverArea.classList.remove('hidden');
+                reportArea.classList.remove('hidden');
+            } else if (role === 'Stock') {
+                badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800";
+                formContainer.classList.remove('hidden'); 
+                driverArea.classList.add('hidden');       
+                reportArea.classList.remove('hidden');
+            } else if (role === 'Delivery') {
+                badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800";
+                formContainer.classList.add('hidden');    
+                driverArea.classList.add('hidden');       
+                reportArea.classList.add('hidden');       
+            }
+        }
+
+        function showSystem(username, role) {
+            document.getElementById('authSection').classList.add('hidden'); 
+            document.getElementById('mainSection').classList.remove('hidden');
+            document.getElementById('currentUserDisplay').innerText = username;
+            
+            applyRolePermissions(role);
+            fetchFromGoogleSheets();
+        }
+
+        async function saveInvoice() {
+            if (currentUserRole === 'Delivery') return alert("⚠️ អ្នកគ្មានសិទ្ធិបង្កើត ឬកែប្រែទិន្នន័យទេ!");
+            const id = document.getElementById('invId').value.trim().toUpperCase();
+            const name = document.getElementById('custName').value.trim();
+            const phone = document.getElementById('custPhone').value.trim();
+            const driver = document.getElementById('driverName').value;
+            const amount = parseFloat(document.getElementById('invAmount').value) || 0;
+            const payment = document.getElementById('payStatus').value;
+            const issue = document.getElementById('invIssue').value.trim();
+            const status = document.getElementById('invStatus').value;
+            const editIdx = document.getElementById('editIndex').value;
+
+            if(!id || !name) return alert("សូមបំពេញ លេខវិក្កយបត្រ និង ឈ្មោះអតិថិជន!");
+            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+            const rightNow = new Date().toISOString();
+
+            if (editIdx === "") {
+                if(invoices.some(inv => inv.id === id)) return alert("លេខកូដវិក្កយបត្រនេះមានរួចហើយ!");
+                invoices.push({id, name, phone, driver, amount, payment, issue, status, location: currentCoordinates, dateCreated: rightNow});
+            } else {
+                const index = parseInt(editIdx);
+                invoices[index] = { ...invoices[index], id, name, phone, driver, amount, payment, issue, status, location: currentCoordinates !== "" ? currentCoordinates : invoices[index].location };
+            }
+            localStorage.setItem('invoices', JSON.stringify(invoices)); resetForm(); renderInvoices();
+            await syncToGoogleSheets('syncInvoices', invoices);
+        }
+
+        document.editInvoice = function(index) {
+            if (currentUserRole === 'Delivery') return alert("⚠️ អ្នកគ្មានសិទ្ធិកែប្រែទិន្នន័យទេ!");
+            let invoices = JSON.parse(localStorage.getItem('invoices')) || []; const inv = invoices[index];
+            document.getElementById('formTitle').innerText = "✏️ កែប្រែព័ត៌មានអតិថិជន"; document.getElementById('editIndex').value = index;
+            document.getElementById('invId').value = inv.id; document.getElementById('custName').value = inv.name;
+            document.getElementById('custPhone').value = inv.phone || ''; document.getElementById('driverName').value = inv.driver || '';
+            document.getElementById('invAmount').value = inv.amount || 0; document.getElementById('payStatus').value = inv.payment;
+            document.getElementById('invIssue').value = inv.issue || ''; document.getElementById('invStatus').value = inv.status;
+            
+            if(inv.location) {
+                currentCoordinates = inv.location;
+                if(inv.location.startsWith("http")) { document.getElementById('mapsLinkInput').value = inv.location; document.getElementById('invLocation').value = "🔗 ទីតាំងតាមរយៈ Link ផែនទី"; }
+                else { document.getElementById('mapsLinkInput').value = ""; document.getElementById('invLocation').value = inv.location; }
+            } else { currentCoordinates = ""; document.getElementById('mapsLinkInput').value = ""; document.getElementById('invLocation').value = ""; }
+            document.getElementById('btnSave').innerText = "🔄 ធ្វើបច្ចុប្បន្នភាព"; document.getElementById('btnCancel').classList.remove('hidden');
+        }
+
+        function resetForm() {
+            document.getElementById('formTitle').innerText = "📝 បង្កើតទិន្នន័យអតិថិជនថ្មី"; document.getElementById('editIndex').value = "";
+            document.getElementById('invId').value = ''; document.getElementById('custName').value = ''; document.getElementById('custPhone').value = '';
+            document.getElementById('driverName').value = ''; document.getElementById('invAmount').value = '0.00'; document.getElementById('invIssue').value = '';
+            document.getElementById('invLocation').value = ''; document.getElementById('mapsLinkInput').value = ''; document.getElementById('searchMapQuery').value = '';
+            currentCoordinates = ""; document.getElementById('btnSave').innerText = "💾 រក្សាទុក"; document.getElementById('btnCancel').classList.add('hidden');
+        }
+
+        document.togglePayment = async function(id, currentPayment) {
+            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+            invoices = invoices.map(inv => inv.id === id ? {...inv, payment: currentPayment === 'Paid' ? 'Unpaid' : 'Paid'} : inv);
+            localStorage.setItem('invoices', JSON.stringify(invoices)); renderInvoices();
+            await syncToGoogleSheets('syncInvoices', invoices);
+        }
+
+        document.updateStatus = async function(id, newStatus) {
+            if (currentUserRole === 'Stock' && (newStatus === 'Shipping' || newStatus === 'Delivered' || newStatus === 'Returned')) {
+                alert("⚠️ ផ្នែកស្តុក (Stock) អាចប្តូរបានតែស្ថានភាព 'ផ្នែកស្តុក' ឬ 'កំពុងរៀបចំ' ប៉ុណ្ណោះ!");
+                renderInvoices();
+                return;
+            }
+            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+            invoices = invoices.map(inv => inv.id === id ? {...inv, status: newStatus} : inv);
+            localStorage.setItem('invoices', JSON.stringify(invoices)); renderInvoices();
+            await syncToGoogleSheets('syncInvoices', invoices);
+        }
+
+        function renderInvoices() {
+            const filterStat = document.getElementById('filterStatus').value; 
+            const search = document.getElementById('searchQuery').value.toLowerCase().trim();
+            const tbody = document.getElementById('invoiceTableBody'); 
+            tbody.innerHTML = '';
+            
+            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+
+            if(search !== "") {
+                invoices = invoices.filter(inv => inv.name.toLowerCase().includes(search) || inv.id.toLowerCase().includes(search) || (inv.phone && inv.phone.includes(search)) || (inv.driver && inv.driver.toLowerCase().includes(search)));
+            }
+            if(filterStat !== 'All') invoices = invoices.filter(inv => inv.status === filterStat);
+            
+            document.getElementById('totalInvoiceCount').innerText = invoices.length;
+
+            const totalPages = Math.ceil(invoices.length / rowsPerPage) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const paginationContainer = document.getElementById('paginationContainer');
+            if (rowsPerPage >= 999999 || invoices.length <= rowsPerPage) {
+                paginationContainer.classList.add('hidden');
+            } else {
+                paginationContainer.classList.remove('hidden');
+                document.getElementById('txtCurrentPage').innerText = currentPage;
+                document.getElementById('txtTotalPages').innerText = totalPages;
+                document.getElementById('btnPrevPage').disabled = (currentPage === 1);
+                document.getElementById('btnNextPage').disabled = (currentPage === totalPages);
+            }
+
+            if(invoices.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400">មិនមានទិន្នន័យអតិថិជនទេ។</td></tr>'; 
+                return; 
+            }
+
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const paginatedInvoices = invoices.slice(startIndex, endIndex);
+
+            paginatedInvoices.forEach((inv, index) => {
+                const actualIndex = startIndex + index;
+
+                let badgeDeliv = "bg-gray-100 text-gray-800"; let statusText = "នៅផ្នែកស្តុក";
+                if(inv.status === 'Preparing') { badgeDeliv = "bg-yellow-100 text-yellow-800"; statusText = "កំពុងរៀបចំ"; }
+                else if(inv.status === 'Shipping') { badgeDeliv = "bg-blue-100 text-blue-800"; statusText = "កំពុងដឹក"; }
+                else if(inv.status === 'Delivered') { badgeDeliv = "bg-green-100 text-green-800"; statusText = "ដឹករួចរាល់"; }
+                else if(inv.status === 'Returned') { badgeDeliv = "bg-red-100 text-red-800"; statusText = "ភ្ញៀវបដិសេធ"; }
+
+                let badgePay = inv.payment === 'Paid' ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
+                let locationMarkup = inv.location ? `<a href="${inv.location.startsWith("http") ? inv.location : 'http://googleusercontent.com/maps.google.com/maps?q=' + inv.location}" target="_blank" class="inline-flex items-center gap-1 text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200 hover:underline">📍 បើកផែនទី</a>` : '<span class="text-xs text-gray-400">📍 គ្មានទីតាំង</span>';
+                let issueMarkup = inv.issue ? '<p class="text-xs bg-red-50 text-red-700 p-1 rounded mt-1 border border-red-100">⚠️ ' + inv.issue + '</p>' : '';
+                let driverMarkup = inv.driver ? `<span class="text-xs font-semibold block text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100 w-fit mt-1">🛵 ${inv.driver}</span>` : '<span class="text-xs text-gray-400 block mt-1">❌ គ្មានអ្នកដឹក</span>';
+
+                let actionButtons = '';
+                if (currentUserRole === 'Admin') {
+                    actionButtons = `
+                        <button onclick="document.editInvoice(${actualIndex})" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-xs py-1 rounded font-bold transition">✏️ កែ</button>
+                        <button onclick="document.deleteInvoice(${actualIndex})" class="w-full bg-red-500 hover:bg-red-600 text-white text-xs py-1 rounded font-bold transition">🗑️ លុប</button>
+                    `;
+                } else if (currentUserRole === 'Stock') {
+                    actionButtons = `
+                        <button onclick="document.editInvoice(${actualIndex})" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-xs py-1 rounded font-bold transition">✏️ កែ</button>
+                        <button class="w-full bg-gray-300 text-gray-500 text-xs py-1 rounded font-bold cursor-not-allowed" disabled>🗑️ លុប</button>
+                    `;
+                } else if (currentUserRole === 'Delivery') {
+                    actionButtons = `
+                        <button class="w-full bg-gray-300 text-gray-400 text-xs py-1 rounded font-bold cursor-not-allowed" disabled>✏️ កែ</button>
+                        <button class="w-full bg-gray-300 text-gray-400 text-xs py-1 rounded font-bold cursor-not-allowed" disabled>🗑️ លុប</button>
+                    `;
+                }
+
+                const tr = document.createElement('tr'); tr.className = "border-b hover:bg-gray-50";
+                tr.innerHTML = `
+                    <td class="p-3">
+                        <div class="font-bold text-indigo-600">ID: ${inv.id}</div>
+                        <div class="font-semibold text-gray-700">${inv.name}</div>
+                        <div class="text-xs text-gray-500">${inv.phone || '-'}</div>
+                    </td>
+                    <td class="p-3">
+                        <div class="font-bold text-gray-800">$${(inv.amount || 0).toFixed(2)}</div>
+                        <button onclick="document.togglePayment('${inv.id}', '${inv.payment}')" class="mt-1 block px-2 py-0.5 rounded-full text-xs font-bold cursor-pointer ${badgePay}">${inv.payment === 'Paid' ? '✓ រួច' : '✗ មិនទាន់'}</button>
+                    </td>
+                    <td class="p-3 max-w-xs">
+                        <div class="space-y-1">${locationMarkup} ${driverMarkup}</div>
+                        ${issueMarkup}
+                        <div class="mt-1.5"><span class="px-2 py-0.5 rounded-full text-xs font-semibold ${badgeDeliv}">${statusText}</span></div>
+                    </td>
+                    <td class="p-3 text-xs text-gray-600 font-medium">${formatKhmerDate(inv.dateCreated)}</td>
+                    <td class="p-3 text-center">
+                        <div class="flex flex-col gap-1 justify-center items-center">
+                            ${actionButtons}
+                            <select onchange="document.updateStatus('${inv.id}', this.value)" class="w-full text-xs border rounded p-1 bg-white">
+                                <option value="Stock" ${inv.status === 'Stock' ? 'selected' : ''}>📦 ផ្នែកស្តុក</option>
+                                <option value="Preparing" ${inv.status === 'Preparing' ? 'selected' : ''}>⏳ ផ្នែករៀបចំ</option>
+                                <option value="Shipping" ${inv.status === 'Shipping' ? 'selected' : ''}>🚚 កំពុងដឹក</option>
+                                <option value="Delivered" ${inv.status === 'Delivered' ? 'selected' : ''}>✅ រួចរាល់</option>
+                                <option value="Returned" ${inv.status === 'Returned' ? 'selected' : ''}>❌ បដិសេធ</option>
+                            </select>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.onload = function() { 
+            const user = localStorage.getItem('currentUser'); 
+            const role = localStorage.getItem('currentUserRole'); 
+            if(user && role) showSystem(user, role); 
+        }
+    </script>
+</body>
+</html>
