@@ -247,7 +247,7 @@
 
     <script>
     // ==========================================
-    // 🔗 Link Google Apps Script Web App របស់អ្នក (កុំកែប្រែវា)
+    // 🔗 Link Google Apps Script Web App របស់អ្នក (រក្សាទុកឱ្យត្រឹមត្រូវ)
     // ==========================================
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwe1s4QDH8Ti_NUIwd2o2BwaHyY_GRLVTG_Hz19mrVkyhnhaP1XQQQtuo1Xbkj6qkQFLg/exec"; 
 
@@ -256,16 +256,16 @@
     let rowsPerPage = 5; 
     let currentUserRole = "Admin"; 
 
-    // មុខងារកំណត់កាលបរិច្ឆេទស្វ័យប្រវត្តពេលបើកមក
+    // មុខងារកំណត់កាលបរិច្ឆេទស្វ័យប្រវត្ត និងហៅទិន្នន័យពេលបើក App
     window.onload = function() {
         if (document.getElementById('reportDate')) {
             document.getElementById('reportDate').value = new Date().toISOString().substring(0, 10);
         }
-        // ហៅមុខងារទាញទិន្នន័យពី Google Sheets មកបង្ហាញភ្លាមៗ
+        // ទាញទិន្នន័យពី Google Sheets មកទុកក្នុងម៉ាស៊ីនមុន
         fetchInvoicesFromGoogleSheets();
     };
 
-    // === ១. មុខងារទាញទិន្នន័យពី Google Sheets មកបង្ហាញលើ App ===
+    // === ១. មុខងារទាញទិន្នន័យពី Google Sheets ===
     async function fetchInvoicesFromGoogleSheets() {
         if (!SCRIPT_URL) return;
         
@@ -281,7 +281,7 @@
             if (data && Array.isArray(data)) {
                 localStorage.setItem('invoices', JSON.stringify(data));
                 
-                // ហៅមុខងារបង្ហាញទិន្នន័យទៅក្នុងតារាង (ប្រសិនបើមានមុខងារនេះក្នុងកូដខាងលើ)
+                // ហៅមុខងារបង្ហាញទិន្នន័យទៅក្នុងតារាង (បើមានក្នុងកូដផ្នែកខាងលើ)
                 if (typeof renderInvoices === "function") {
                     renderInvoices();
                 }
@@ -300,7 +300,7 @@
         }
     }
 
-    // === ២. មុខងារផ្ញើទិន្នន័យទៅរក្សាទុកនៅលើ Google Sheets (ពេលមានការបញ្ចូលថ្មី ឬលុប) ===
+    // === ២. មុខងារផ្ញើទិន្នន័យទៅ Google Sheets ===
     async function syncToGoogleSheets(actionType, invoiceData) {
         if (!SCRIPT_URL) return;
         try {
@@ -310,7 +310,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: actionType, data: invoiceData })
             });
-            // ក្រោយពេលប្រគល់ទិន្នន័យរួច ធ្វើការទាញទិន្នន័យថ្មីមកផ្ទៀងផ្ទាត់ឡើងវិញ
+            // ផ្ញើរួច ៩០ វិនាទីក្រោយមកទាញទិន្នន័យថ្មី
             setTimeout(fetchInvoicesFromGoogleSheets, 1500);
         } catch (error) {
             console.error("Error syncing to Google Sheets:", error);
