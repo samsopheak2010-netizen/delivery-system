@@ -18,75 +18,125 @@
         </h2>
         
         <div class="flex border-b border-gray-200 mb-6">
-            <button class="w-1/2 pb-2 text-center font-semibold text-indigo-600 border-b-2 border-indigo-600">🔒 ចូលប្រើប្រាស់</button>
-            <button class="w-1/2 pb-2 text-center font-semibold text-gray-400 cursor-not-allowed" disabled>📝 ចុះឈ្មោះ</button>
+            <button onclick="switchTab('login')" id="tabLoginBtn" class="w-1/2 pb-2 text-center font-semibold text-indigo-600 border-b-2 border-indigo-600">🔒 ចូលប្រើប្រាស់</button>
+            <button onclick="switchTab('register')" id="tabRegisterBtn" class="w-1/2 pb-2 text-center font-semibold text-gray-500 border-b-2 border-transparent">📝 ចុះឈ្មោះ</button>
         </div>
 
-        <div>
+        <div id="loginForm">
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">ឈ្មោះអ្នកប្រើប្រាស់</label>
-                <input type="text" id="loginUser" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="admin">
+                <input type="text" id="loginUser" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="បញ្ចូលឈ្មោះអ្នកប្រើប្រាស់">
             </div>
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-1">លេខសម្ងាត់</label>
-                <input type="password" id="loginPass" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="123456">
+                <input type="password" id="loginPass" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="បញ្ចូលលេខសម្ងាត់">
             </div>
             <button onclick="handleLogin()" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition flex items-center justify-center gap-2">
                 🔑 ចូលប្រើប្រាស់
             </button>
         </div>
+
+        <div id="registerForm" class="hidden">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">ឈ្មោះអ្នកប្រើប្រាស់ថ្មី</label>
+                <input type="text" id="regUser" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">លេខសម្ងាត់</label>
+                <input type="password" id="regPass" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500">
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">ជ្រើសរើសតួនាទី (Role) *</label>
+                <select id="regRole" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:border-indigo-500">
+                    <option value="Staff">Staff</option>
+                    <option value="Admin">Admin</option>
+                </select>
+            </div>
+            <button onclick="handleRegister()" class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">📝 ចុះឈ្មោះគណនី</button>
+        </div>
     </div>
 
-    <div id="appContainer" class="hidden w-full max-w-4xl bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-200 mx-auto mt-4">
+    <div id="appContainer" class="hidden w-full max-w-5xl bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-200 mx-auto mt-4">
+        
         <div class="flex flex-wrap justify-between items-center border-b pb-4 mb-4 gap-2">
             <div>
                 <h1 class="text-lg sm:text-xl font-bold text-gray-800">ប្រព័ន្ធគ្រប់គ្រងទិន្នន័យអតិថិជន និងការដឹកជញ្ជូន</h1>
                 <div class="flex flex-wrap items-center gap-2 mt-1 text-xs sm:text-sm text-gray-600">
-                    <span>គណនី៖ <strong id="userDisplay" class="text-indigo-600">...</strong></span>
-                    <span class="bg-purple-100 text-purple-700 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium">Admin</span>
-                    <span id="syncStatus" class="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded border border-yellow-300">🔄 កំពុងត្រៀម...</span>
+                    <span>គណនី៖ <strong id="userDisplay" class="text-blue-600 font-bold">...</strong></span>
+                    <span id="roleBadge" class="bg-purple-100 text-purple-700 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium">Admin</span>
+                    <span id="syncStatus" class="text-[10px] px-2 py-0.5 rounded border">🔄 កំពុងត្រៀម...</span>
                 </div>
             </div>
-            <button onclick="handleLogout()" class="bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium hover:bg-red-600 transition">
+            <button onclick="handleLogout()" class="bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium hover:bg-red-600 transition flex items-center gap-1">
                 🚪 ចាកចេញ
             </button>
         </div>
 
-        <div class="mt-4">
-            <h3 class="text-md font-bold text-gray-700 mb-2">📋 បញ្ជីទិន្នន័យពី Google Sheets</h3>
-            <div class="overflow-x-auto border border-gray-200 rounded-lg">
+        <div class="mt-6">
+            <h3 class="text-md font-bold text-gray-700 mb-3 flex items-center gap-2">📋 បញ្ជីទិន្នន័យពី Google Sheets</h3>
+            <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50">
+                    <thead class="bg-gray-50 text-gray-500 font-semibold">
                         <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ល.រ</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ឈ្មោះអតិថិជន</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">លេខទូរស័ព្ទ</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ស្ថានភាពដឹកជញ្ជូន</th>
+                            <th class="px-4 py-3 text-left text-xs tracking-wider">ល.រ</th>
+                            <th class="px-4 py-3 text-left text-xs tracking-wider">ឈ្មោះអតិថិជន</th>
+                            <th class="px-4 py-3 text-left text-xs tracking-wider">លេខទូរស័ព្ទ</th>
+                            <th class="px-4 py-3 text-left text-xs tracking-wider">ស្ថានភាពដឹកជញ្ជូន</th>
                         </tr>
                     </thead>
-                    <tbody id="invoiceTableBody" class="bg-white divide-y divide-gray-200">
+                    <tbody id="invoiceTableBody" class="bg-white divide-y divide-gray-200 text-gray-700">
                         <tr>
-                            <td colspan="4" class="px-4 py-4 text-center text-gray-400">🔄 កំពុងរង់ចាំទាញទិន្នន័យ...</td>
+                            <td colspan="4" class="px-4 py-4 text-center text-gray-400">🔄 កំពុងទាញទិន្នន័យ...</td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <div class="flex justify-between items-center mt-4">
+                <span id="pageInfo" class="text-xs text-gray-500">ទំព័រទី ១</span>
+                <div class="flex gap-1">
+                    <button onclick="changePage(-1)" id="btnPrevPage" class="px-3 py-1 text-xs font-bold bg-gray-100 rounded hover:bg-gray-200 transition cursor-pointer">◀ ថយក្រោយ</button>
+                    <button onclick="changePage(1)" id="btnNextPage" class="px-3 py-1 text-xs font-bold bg-gray-100 rounded hover:bg-gray-200 transition cursor-pointer">ទៅមុខ ▶</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // 🔗 ដំណភ្ជាប់ Google Apps Script Web App របស់អ្នក
+        // 🔗 Link Web App Google Apps Script របស់អ្នក
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwe1s4QDH8Ti_NUIwd2o2BwaHyY_GRLVTG_Hz19mrVkyhnhaP1XQQQtuo1Xbkj6qkQFLg/exec"; 
 
+        let currentPage = 1;
+        let rowsPerPage = 10; 
         let currentUserRole = "Admin"; 
+        let currentInvoicesData = []; // ទុកសម្រាប់រក្សាទុកទិន្នន័យជួរ
 
-        // ដំណើរការដំបូងពេលបើកទំព័រ App
         window.onload = function() {
-            // ព្យាយាមទាញទិន្នន័យទុកជាមុន
+            // ទាញទិន្នន័យពី Sheets មកស្តុកទុកជាមុនសិន
             fetchInvoicesFromGoogleSheets();
         };
 
-        // === 🔑 មុខងារ LOGIN (កែសម្រួលដោះស្រាយការគាំង) ===
+        // === 🔄 មុខងារប្តូរ Tab ក្នុង Form Login ===
+        function switchTab(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const tabLoginBtn = document.getElementById('tabLoginBtn');
+            const tabRegisterBtn = document.getElementById('tabRegisterBtn');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                tabLoginBtn.className = "w-1/2 pb-2 text-center font-semibold text-indigo-600 border-b-2 border-indigo-600";
+                tabRegisterBtn.className = "w-1/2 pb-2 text-center font-semibold text-gray-500 border-b-2 border-transparent";
+            } else {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                tabRegisterBtn.className = "w-1/2 pb-2 text-center font-semibold text-indigo-600 border-b-2 border-indigo-600";
+                tabLoginBtn.className = "w-1/2 pb-2 text-center font-semibold text-gray-500 border-b-2 border-transparent";
+            }
+        }
+
+        // === 🔑 មុខងារ LOGIN (ដោះស្រាយការគាំងលែងលោតត្រឡប់មកវិញ) ===
         function handleLogin() {
             const userInput = document.getElementById('loginUser').value.trim();
             const passInput = document.getElementById('loginPass').value.trim();
@@ -96,66 +146,110 @@
                 return;
             }
 
+            // ប្រព័ន្ធត្រួតពិនិត្យ (Admin / 123456)
             if (userInput.toLowerCase() === "admin" && passInput === "123456") {
-                currentUserRole = "Admin";
-                
-                // បិទផ្ទាំង Login និងបង្ហាញផ្ទាំង App ធំ
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('appContainer').classList.remove('hidden');
-                document.getElementById('userDisplay').innerText = userInput;
-                
-                // ហៅបង្ហាញទិន្នន័យឡើងវិញ
-                renderInvoices();
+                showMainApp(userInput, "Admin");
             } else {
-                alert("ឈ្មោះអ្នកប្រើប្រាស់ ឬលេខសម្ងាត់មិនត្រឹមត្រូវឡើយ!");
+                // ឆែកគណនីក្នុង LocalStorage (បើមានការចុះឈ្មោះថ្មី)
+                const savedUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+                const userMatch = savedUsers.find(u => u.user === userInput && u.pass === passInput);
+                
+                if (userMatch) {
+                    showMainApp(userMatch.user, userMatch.role);
+                } else {
+                    alert("ឈ្មោះអ្នកប្រើប្រាស់ ឬលេខសម្ងាត់មិនត្រឹមត្រូវឡើយ!");
+                }
             }
         }
 
-        // === 🚪 មុខងារ LOGOUT ===
+        // មុខងារបើកបង្ហាញផ្ទាំង App ធំ និងលាក់ផ្ទាំង Login
+        function showMainApp(username, role) {
+            currentUserRole = role;
+            document.getElementById('loginContainer').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
+            document.getElementById('userDisplay').innerText = username;
+            document.getElementById('roleBadge').innerText = role;
+            
+            // បង្ហាញទិន្នន័យចូលក្នុងតារាងភ្លាមៗ
+            renderInvoices();
+        }
+
+        // === 📝 មុខងារចុះឈ្មោះគណនីថ្មី ===
+        function handleRegister() {
+            const user = document.getElementById('regUser').value.trim();
+            const pass = document.getElementById('regPass').value.trim();
+            const role = document.getElementById('regRole').value;
+
+            if(!user || !pass) {
+                alert("សូមបំពេញចន្លោះដែលខ្វះ!");
+                return;
+            }
+
+            let savedUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            savedUsers.push({ user, pass, role });
+            localStorage.setItem('registeredUsers', JSON.stringify(savedUsers));
+            
+            alert("ចុះឈ្មោះបានជោគជ័យ! សូមប្តូរទៅ Tab ចូលប្រើប្រាស់ដើម្បី Login។");
+            switchTab('login');
+        }
+
+        // === 🚪 មុខងារចាកចេញ ===
         function handleLogout() {
-            document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('loginContainer').classList.remove('hidden');
             document.getElementById('appContainer').classList.add('hidden');
             document.getElementById('loginUser').value = "";
             document.getElementById('loginPass').value = "";
         }
 
-        // === 🔄 មុខងារបង្ហាញទិន្នន័យទៅក្នុងតារាង (បង្កើតការពារកុំឱ្យគាំង) ===
+        // === 📊 មុខងាររៀបចំបង្ហាញទិន្នន័យក្នុងតារាងចាស់របស់អ្នក ===
         function renderInvoices() {
             const tableBody = document.getElementById('invoiceTableBody');
             if (!tableBody) return;
 
-            const localData = localStorage.getItem('invoices');
-            if (!localData) {
-                tableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-4 text-center text-gray-400">📭 គ្មានទិន្នន័យក្នុងម៉ាស៊ីនឡើយ</td></tr>`;
-                return;
-            }
-
-            const invoices = JSON.parse(localData);
-            if (!Array.isArray(invoices) || invoices.length === 0) {
+            if (currentInvoicesData.length === 0) {
                 tableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-4 text-center text-gray-400">📭 គ្មានទិន្នន័យបង្ហាញឡើយ</td></tr>`;
                 return;
             }
 
-            // បង្ហាញទិន្នន័យចូលក្នុងតារាង
+            // គណនាការបែងចែកទំព័រ (Pagination)
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const paginatedItems = currentInvoicesData.slice(startIndex, endIndex);
+
             tableBody.innerHTML = "";
-            invoices.forEach((item, index) => {
-                // ឧបមាថាទិន្នន័យជួរនីមួយៗជា Array ឬ Object ផ្អែកលើ Apps Script
-                const name = item[1] || item.name || "មិនស្គាល់";
-                const phone = item[2] || item.phone || "មិនស្គាល់";
-                const status = item[3] || item.status || "កំពុងដំណើរការ";
+            paginatedItems.forEach((item, index) => {
+                // ទាញយកទិន្នន័យតាមជួរជួរនីមួយៗពី Google Sheets (ល.រ, ឈ្មោះ, លេខទូរស័ព្ទ, ស្ថានភាព)
+                const displayIndex = startIndex + index + 1;
+                const name = item[1] || "មិនស្គាល់";
+                const phone = item[2] || "មិនស្គាល់";
+                const status = item[3] || "Stock";
 
                 tableBody.innerHTML += `
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-2 border-b text-gray-600">${index + 1}</td>
-                        <td class="px-4 py-2 border-b font-medium text-gray-800">${name}</td>
-                        <td class="px-4 py-2 border-b text-gray-600">${phone}</td>
-                        <td class="px-4 py-2 border-b"><span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">${status}</span></td>
+                    <tr class="hover:bg-gray-50 border-b">
+                        <td class="px-4 py-2 text-gray-600 font-medium">${displayIndex}</td>
+                        <td class="px-4 py-2 font-semibold text-gray-800">${name}</td>
+                        <td class="px-4 py-2 text-gray-600">${phone}</td>
+                        <td class="px-4 py-2"><span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">${status}</span></td>
                     </tr>
                 `;
             });
+
+            // អាប់ដេតលេខទំព័រ
+            document.getElementById('pageInfo').innerText = `ទំព័រទី ${currentPage} នៃ ${Math.ceil(currentInvoicesData.length / rowsPerPage)}`;
         }
 
-        // === ១. មុខងារទាញទិន្នន័យពី Google Sheets ===
+        // === ◀ ▶ មុខងារប្តូរទំព័រ ទៅមុខ/ថយក្រោយ ===
+        function changePage(direction) {
+            const totalPages = Math.ceil(currentInvoicesData.length / rowsPerPage);
+            currentPage += direction;
+
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            renderInvoices();
+        }
+
+        // === 🔄 ១. មុខងារទាញទិន្នន័យពី Google Sheets ===
         async function fetchInvoicesFromGoogleSheets() {
             if (!SCRIPT_URL) return;
             
@@ -169,11 +263,13 @@
                 const response = await fetch(SCRIPT_URL + "?action=read");
                 const data = await response.json();
                 if (data && Array.isArray(data)) {
-                    // រក្សាទុកទិន្នន័យក្នុង LocalStorage របស់ទូរស័ព្ទ
-                    localStorage.setItem('invoices', JSON.stringify(data));
+                    // លុបជួរចំណងជើង (Header Row) របស់ Excel ចេញបើវាជាប់មក
+                    currentInvoicesData = data.filter(row => row[0] !== "ល.រ" && row[0] !== "");
                     
-                    // ហៅបង្ហាញទៅក្នុងតារាង
-                    renderInvoices();
+                    // បង្ហាញទៅក្នុងតារាង (បើអ្នកប្រើបាន Login រួចហើយ)
+                    if (!document.getElementById('appContainer').classList.contains('hidden')) {
+                        renderInvoices();
+                    }
                     
                     if (statusBox) {
                         statusBox.innerHTML = "✅ Google Sheets Sync";
@@ -186,8 +282,6 @@
                     statusBox.innerHTML = "❌ មិនអាចទាញទិន្នន័យបាន";
                     statusBox.className = "text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded border border-red-300";
                 }
-                // បើទោះជាមិនអាចទាញថ្មីបាន ក៏បង្ហាញទិន្នន័យចាស់ដែលមានស្រាប់ការពារគាំង
-                renderInvoices();
             }
         }
     </script>
