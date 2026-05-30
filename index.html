@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ប្រព័ន្ធគ្រប់គ្រងអតិថិជន និងការដឹកជញ្ជូន (Cloud Sync)</title>
+    <title>ប្រព័ន្ធគ្រប់គ្រងអតិថិជន និងការដឹកជញ្ជូន (សិទ្ធិប្រើប្រាស់)</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -25,14 +25,26 @@
         </div>
         
         <div id="loginForm">
-            <div class="mb-4"><label class="block text-sm font-medium mb-1">ឈ្មោះអ្នកប្រើប្រាស់</label><input type="text" id="loginUser" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500"></div>
-            <div class="mb-6"><label class="block text-sm font-medium mb-1">លេខសម្ងាត់</label><input type="password" id="loginPass" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500"></div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">ឈ្មោះអ្នកប្រើប្រាស់</label>
+                <input type="text" id="loginUser" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500">
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-1">លេខសម្ងាត់</label>
+                <input type="password" id="loginPass" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500">
+            </div>
             <button onclick="handleLogin()" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">🔑 ចូលប្រើប្រាស់</button>
         </div>
         
         <div id="registerForm" class="hidden">
-            <div class="mb-4"><label class="block text-sm font-medium mb-1">ឈ្មោះអ្នកប្រើប្រាស់ថ្មី</label><input type="text" id="regUser" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500"></div>
-            <div class="mb-4"><label class="block text-sm font-medium mb-1">លេខសម្ងាត់</label><input type="password" id="regPass" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500"></div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">ឈ្មោះអ្នកប្រើប្រាស់ថ្មី</label>
+                <input type="text" id="regUser" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">លេខសម្ងាត់</label>
+                <input type="password" id="regPass" class="w-full px-3 py-2 border rounded-lg focus:outline-indigo-500">
+            </div>
             <div class="mb-6">
                 <label class="block text-sm font-medium mb-1">ជ្រើសរើសតួនាទី (Role) *</label>
                 <select id="regRole" class="w-full px-3 py-2 border rounded-md bg-white text-sm focus:outline-indigo-500">
@@ -75,11 +87,15 @@
                         <div id="nameSuggestions" class="hidden absolute left-0 right-0 bg-white border rounded-md shadow-lg suggestion-box mt-1"></div>
                     </div>
 
-                    <div class="mb-3"><label class="block text-sm font-medium mb-1">លេខទូរស័ព្ទ</label><input type="text" id="custPhone" class="w-full px-3 py-2 border rounded-md focus:outline-indigo-500"></div>
+                    <div class="mb-3">
+                        <label class="block text-sm font-medium mb-1">លេខទូរស័ព្ទ</label>
+                        <input type="text" id="custPhone" class="w-full px-3 py-2 border rounded-md focus:outline-indigo-500">
+                    </div>
                     
                     <div class="mb-3">
                         <label class="block text-sm font-medium mb-1">ឈ្មោះអ្នកដឹក (Driver)</label>
-                        <select id="driverName" class="w-full px-3 py-2 border rounded-md bg-white text-sm focus:outline-indigo-500"></select>
+                        <select id="driverName" class="w-full px-3 py-2 border rounded-md bg-white text-sm focus:outline-indigo-500">
+                            </select>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2 mb-3">
@@ -117,6 +133,7 @@
                         <label class="block text-sm font-medium mb-1">ការស្នើសុំ / បញ្ហាផ្សេងៗ</label>
                         <textarea id="invIssue" rows="2" placeholder="ព័ត៌មានបន្ថែម..." class="w-full px-3 py-2 border rounded-md text-sm focus:outline-indigo-500"></textarea>
                     </div>
+
                     <div class="mb-4">
                         <label class="block text-sm font-medium mb-1">ស្ថានភាពដឹកជញ្ជូន</label>
                         <select id="invStatus" class="w-full px-3 py-2 border rounded-md bg-white">
@@ -219,13 +236,14 @@
                             <thead>
                                 <tr class="bg-gray-50 border-b">
                                     <th class="p-3 font-bold text-gray-600">អតិថិជន / វិក្កយបត្រ</th>
-                                    <th class="p-3 font-bold text-gray-600">តម្លៃ / ការទូទាត់</th>
+                                    <th class="p-3 font-bold text-gray-600">តម្លៃ / การទូទាត់</th>
                                     <th class="p-3 font-bold text-gray-600">Pin ទីតាំង / អ្នកដឹក</th>
                                     <th class="p-3 font-bold text-gray-600">កាលបរិច្ឆេទបង្កើត</th>
                                     <th class="p-3 font-bold text-gray-600 text-center">សកម្មភាព</th>
                                 </tr>
                             </thead>
-                            <tbody id="invoiceTableBody"></tbody>
+                            <tbody id="invoiceTableBody">
+                                </tbody>
                         </table>
                     </div>
 
@@ -244,9 +262,9 @@
     </div>
 
     <script>
-        // =======================================================
-        // ជួរទី ២៦២៖ កន្លែងសម្រាប់ដាក់ Web App URL ពី Google Apps Script
-        // =======================================================
+        // ==========================================
+        // 🔗 ដាក់លីង Google Apps Script Web App របស់អ្នកនៅទីនេះ
+        // ==========================================
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwe1s4QDH8Ti_NUIwd2o2BwaHYy_GRLVTG_Hz19mrVkyhnhaP1XQQQtuolXbkj6qkQFLg/exec";
 
         let currentCoordinates = "";
@@ -254,9 +272,10 @@
         let rowsPerPage = 5; 
         let currentUserRole = "Admin"; 
 
+        // កំណត់ថ្ងៃរាយការណ៍លំនាំដើមជាថ្ងៃនេះ
         document.getElementById('reportDate').value = new Date().toISOString().substring(0, 10);
 
-        // 🔄 មុខងារទាញទិន្នន័យពី Google Sheets មកបង្ហាញលើ App
+        // 🔄 មុខងារទាញទិន្នន័យពី Google Sheets (Cloud)
         async function fetchFromGoogleSheets() {
             if (!SCRIPT_URL || SCRIPT_URL.includes("សូមផាស")) return;
             try {
@@ -273,7 +292,7 @@
             }
         }
 
-        // 📤 មុខងារបញ្ជូនទិន្នន័យទៅរក្សាទុកលើ Google Sheets
+        // 📤 មុខងារបញ្ជូនទិន្នន័យទៅរក្សាទុកលើ Google Sheets (Cloud)
         async function syncToGoogleSheets(action, data) {
             if (!SCRIPT_URL || SCRIPT_URL.includes("សូមផាស")) return;
             try {
@@ -288,6 +307,7 @@
             }
         }
 
+        // 📥 មុខងារ Upload និងអានឯកសារ Excel (Smart Reader)
         function handleExcelUpload(event) {
             if (currentUserRole === 'Delivery') return alert("⚠️ អ្នកគ្មានសិទ្ធិប្រើប្រាស់មុខងារនេះទេ!");
             const file = event.target.files[0];
@@ -346,12 +366,18 @@
             reader.readAsArrayBuffer(file);
         }
 
+        // 📄 កំណត់ចំនួនជួរត្រូវបង្ហាញ
         function changeRowsPerPage(value) {
-            rowsPerPage = value === 'all' ? 999999 : parseInt(value);
+            if (value === 'all') {
+                rowsPerPage = 999999; 
+            } else {
+                rowsPerPage = parseInt(value);
+            }
             currentPage = 1; 
             renderInvoices();
         }
 
+        // 🔍 Search Input Handler & Auto Suggestions
         function handleSearchInput(val) {
             currentPage = 1; 
             renderInvoices();
@@ -393,17 +419,20 @@
             renderInvoices();
         }
 
+        // បិទ Suggestion ពេលចុចក្រៅប្រអប់
         document.addEventListener('click', function(e) {
             if (e.target.id !== 'searchQuery') {
                 document.getElementById('searchSuggestions').classList.add('hidden');
             }
         });
 
+        // ប្តូរទំព័រ Pagination
         function changePage(direction) {
             currentPage += direction;
             renderInvoices();
         }
 
+        // --- ផ្នែកគ្រប់គ្រងឈ្មោះអ្នកដឹក (Drivers Manager) ---
         function getDrivers() {
             let drivers = JSON.parse(localStorage.getItem('drivers'));
             if (!drivers || drivers.length === 0) {
@@ -430,7 +459,8 @@
                 </div>
             `).join('');
 
-            selectDropdown.innerHTML = `<option value="">-- មិនទាន់មានអ្នកដឹក --</option>` + drivers.map(d => `<option value="${d}">${d}</option>`).join('');
+            selectDropdown.innerHTML = `<option value="">-- មិនទាន់មានអ្នកដឹក --</option>` + 
+                drivers.map(d => `<option value="${d}">${d}</option>`).join('');
         }
 
         async function saveDriver() {
@@ -461,7 +491,8 @@
 
         async function deleteDriver(index) {
             if(confirm("តើអ្នកប្រាកដជាចង់លុបអ្នកដឹកនេះមែនទេ?")) {
-                let drivers = getDrivers(); drivers.splice(index, 1);
+                let drivers = getDrivers();
+                drivers.splice(index, 1);
                 localStorage.setItem('drivers', JSON.stringify(drivers));
                 resetDriverForm(); renderDrivers(); renderInvoices();
                 await syncToGoogleSheets('syncDrivers', drivers);
@@ -469,36 +500,54 @@
         }
 
         function resetDriverForm() {
-            document.getElementById('driverInputName').value = ""; document.getElementById('editDriverIndex').value = "";
-            document.getElementById('btnSaveDriver').innerText = "បន្ថែម"; document.getElementById('btnCancelDriver').classList.add('hidden');
+            document.getElementById('driverInputName').value = "";
+            document.getElementById('editDriverIndex').value = "";
+            document.getElementById('btnSaveDriver').innerText = "បន្ថែម";
+            document.getElementById('btnCancelDriver').classList.add('hidden');
         }
 
+        // --- Auto Suggestions នៅក្នុង Form បញ្ចូលទិន្នន័យ ---
         function handleIdInput(val) {
-            val = val.toUpperCase(); document.getElementById('invId').value = val;
+            val = val.toUpperCase();
+            document.getElementById('invId').value = val;
             const suggestions = document.getElementById('idSuggestions');
             if(!val) { suggestions.classList.add('hidden'); return; }
+            
             let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
             let matches = [...new Set(invoices.map(i => i.id).filter(id => id.includes(val)))];
+            
             if(matches.length > 0) {
-                suggestions.innerHTML = matches.map(m => `<div onclick="selectFormSuggestion('invId', '${m}', 'idSuggestions')" class="p-2 hover:bg-gray-100 cursor-pointer text-sm font-bold uppercase">${m}</div>`).join('');
+                suggestions.innerHTML = matches.map(m => `
+                    <div onclick="selectFormSuggestion('invId', '${m}', 'idSuggestions')" class="p-2 hover:bg-gray-100 cursor-pointer text-sm font-bold uppercase">${m}</div>
+                `).join('');
                 suggestions.classList.remove('hidden');
-            } else { suggestions.classList.add('hidden'); }
+            } else {
+                suggestions.classList.add('hidden');
+            }
         }
 
         function handleNameInput(val) {
             const suggestions = document.getElementById('nameSuggestions');
             if(!val) { suggestions.classList.add('hidden'); return; }
+            
             let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
             let matches = [...new Set(invoices.map(i => i.name).filter(name => name.toLowerCase().includes(val.toLowerCase())))];
+            
             if(matches.length > 0) {
-                suggestions.innerHTML = matches.map(m => `<div onclick="selectFormSuggestion('custName', '${m}', 'nameSuggestions')" class="p-2 hover:bg-gray-100 cursor-pointer text-sm">${m}</div>`).join('');
+                suggestions.innerHTML = matches.map(m => `
+                    <div onclick="selectFormSuggestion('custName', '${m}', 'nameSuggestions')" class="p-2 hover:bg-gray-100 cursor-pointer text-sm">${m}</div>
+                `).join('');
                 suggestions.classList.remove('hidden');
-            } else { suggestions.classList.add('hidden'); }
+            } else {
+                suggestions.classList.add('hidden');
+            }
         }
 
         function selectFormSuggestion(inputId, value, boxId) {
             document.getElementById(inputId).value = value;
             document.getElementById(boxId).classList.add('hidden');
+            
+            // បើវាយលេខ ID ត្រូវនឹងវិក្កយបត្រដែលមានស្រាប់ វានឹងហៅទិន្នន័យមកកែស្វ័យប្រវត្តិ (លើកលែងតែ Delivery)
             if(inputId === 'invId' && currentUserRole !== 'Delivery') {
                 let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
                 let idx = invoices.findIndex(i => i.id === value);
@@ -506,6 +555,13 @@
             }
         }
 
+        // បិទ Suggestion ក្នុង Form ពេលចុចខាងក្រៅ
+        document.addEventListener('click', function(e) {
+            if (e.target.id !== 'invId') document.getElementById('idSuggestions').classList.add('hidden');
+            if (e.target.id !== 'custName') document.getElementById('nameSuggestions').classList.add('hidden');
+        });
+
+        // 🗑️ មុខងារលុបវិក្កយបត្រ (Admin Only)
         document.deleteInvoice = async function(index) {
             if (currentUserRole !== 'Admin') return alert("⚠️ មានតែ Admin ទេ ទើបអាចលុបទិន្នន័យបាន!");
             if(confirm("តើអ្នកពិតជាចង់លុបវិក្កយបត្រនេះមែនទេ?")) {
@@ -517,6 +573,7 @@
             }
         }
 
+        // --- 📊 ផ្នែកគ្រប់គ្រងរបាយការណ៍ និងទាញយក (Reports Export) ---
         function getFilteredReportData() {
             let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
             const filterType = document.getElementById('reportFilterType').value;
@@ -527,9 +584,12 @@
             return invoices.filter(inv => {
                 const invDate = inv.dateCreated ? new Date(inv.dateCreated) : new Date();
                 if(filterType === 'day') {
-                    return invDate.getFullYear() === chosenDate.getFullYear() && invDate.getMonth() === chosenDate.getMonth() && invDate.getDate() === chosenDate.getDate();
+                    return invDate.getFullYear() === chosenDate.getFullYear() &&
+                           invDate.getMonth() === chosenDate.getMonth() &&
+                           invDate.getDate() === chosenDate.getDate();
                 } else if(filterType === 'month') {
-                    return invDate.getFullYear() === chosenDate.getFullYear() && invDate.getMonth() === chosenDate.getMonth();
+                    return invDate.getFullYear() === chosenDate.getFullYear() &&
+                           invDate.getMonth() === chosenDate.getMonth();
                 } else if(filterType === 'year') {
                     return invDate.getFullYear() === chosenDate.getFullYear();
                 }
@@ -540,11 +600,19 @@
         function exportToExcel() {
             const data = getFilteredReportData();
             if(data.length === 0) return alert("មិនមានទិន្នន័យសម្រាប់ទាញយកទេ!");
+            
             const excelData = data.map((inv, idx) => ({
-                "ល.រ": idx + 1, "លេខវិក្កយបត្រ": inv.id, "ឈ្មោះអតិថិជន": inv.name, "លេខទូរស័ព្ទ": inv.phone || '-',
-                "ទឹកប្រាក់ ($)": inv.amount, "ការទូទាត់": inv.payment === 'Paid' ? 'ទូទាត់រួច' : 'មិនទាន់ទូទាត់',
-                "អ្នកដឹក (Driver)": inv.driver || 'មិនទាន់មាន', "ស្ថានភាពដឹក": inv.status, "កាលបរិច្ឆេទបង្កើត": inv.dateCreated ? formatKhmerDate(inv.dateCreated) : '-'
+                "ល.រ": idx + 1,
+                "លេខវិក្កយបត្រ": inv.id,
+                "ឈ្មោះអតិថិជន": inv.name,
+                "លេខទូរស័ព្ទ": inv.phone || '-',
+                "ទឹកប្រាក់ ($)": inv.amount,
+                "ការទូទាត់": inv.payment === 'Paid' ? 'ទូទាត់រួច' : 'មិនទាន់ទូទាត់',
+                "អ្នកដឹក (Driver)": inv.driver || 'មិនទាន់មាន',
+                "ស្ថានភាពដឹក": inv.status,
+                "កាលបរិច្ឆេទបង្កើត": inv.dateCreated ? formatKhmerDate(inv.dateCreated) : '-'
             }));
+
             const worksheet = XLSX.utils.json_to_sheet(excelData);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
@@ -552,12 +620,26 @@
         }
 
         function exportToPDF() {
-            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
             const data = getFilteredReportData();
             if(data.length === 0) return alert("មិនមានទិន្នន័យសម្រាប់ទាញយកទេ!");
+
             doc.text(`Delivery Report (${document.getElementById('reportFilterType').value.toUpperCase()})`, 14, 15);
-            const tableRows = data.map((inv, idx) => [idx + 1, inv.id, inv.name, inv.phone || '-', `$${inv.amount.toFixed(2)}`, inv.payment === 'Paid' ? 'Paid' : 'Unpaid', inv.driver || '-', inv.status]);
-            doc.autoTable({ head: [['No', 'Invoice ID', 'Customer', 'Phone', 'Amount', 'Payment', 'Driver', 'Status']], body: tableRows, startY: 30, styles: { fontSize: 8 } });
+            
+            const tableRows = data.map((inv, idx) => [
+                idx + 1, inv.id, inv.name, inv.phone || '-', 
+                `$${inv.amount.toFixed(2)}`, inv.payment === 'Paid' ? 'Paid' : 'Unpaid', 
+                inv.driver || '-', inv.status
+            ]);
+
+            doc.autoTable({
+                head: [['No', 'Invoice ID', 'Customer', 'Phone', 'Amount', 'Payment', 'Driver', 'Status']],
+                body: tableRows,
+                startY: 30,
+                styles: { fontSize: 8 }
+            });
+
             doc.save(`Report_${document.getElementById('reportDate').value}.pdf`);
         }
 
@@ -567,10 +649,11 @@
             return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth()+1).toString().padStart(2, '0')}-${d.getFullYear()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
         }
 
+        // --- 📍 ផ្នែកដោះស្រាយប្រព័ន្ធផែនទី និងកូអរដោនេ (Maps & Location Settings) ---
         function searchOnGoogleMaps() {
             const query = document.getElementById('searchMapQuery').value.trim();
             if (!query) return alert("សូមវាយបញ្ចូលឈ្មោះទីតាំងដែលចង់ស្វែងរក!");
-            window.open(`http://maps.google.com/?q=${encodeURIComponent(query)}`, '_blank');
+            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`, '_blank');
         }
 
         function getCurrentGPS() {
@@ -579,28 +662,44 @@
                     currentCoordinates = position.coords.latitude + "," + position.coords.longitude;
                     document.getElementById('invLocation').value = currentCoordinates;
                     document.getElementById('mapsLinkInput').value = ""; 
-                }, function() { alert("សូមបើកសិទ្ធិ Location!"); });
+                }, function() {
+                    alert("មិនអាចទាញយក GPS បានទេ! សូមពិនិត្យមើលការផ្តល់សិទ្ធិ Location លើកម្មវិធីរុករករបស់អ្នក។");
+                });
+            } else {
+                alert("កម្មវិធីរុករកនេះមិនគាំទ្រប្រព័ន្ធ GPS ទេ។");
             }
         }
 
         function extractCoordsFromLink() {
             const urlString = document.getElementById('mapsLinkInput').value.trim();
-            if (!urlString) { currentCoordinates = ""; document.getElementById('invLocation').value = ""; return; }
-            const regex = /@(-?\d+\.\d+),(-?\d+\.\d+)/; const match = urlString.match(regex);
+            if (!urlString) {
+                currentCoordinates = "";
+                document.getElementById('invLocation').value = "";
+                return;
+            }
+
+            const regex = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
+            const match = urlString.match(regex);
+
             if (match && match[1] && match[2]) {
-                currentCoordinates = match[1] + "," + match[2]; document.getElementById('invLocation').value = currentCoordinates;
+                currentCoordinates = match[1] + "," + match[2];
+                document.getElementById('invLocation').value = currentCoordinates;
             } else {
-                currentCoordinates = urlString; document.getElementById('invLocation').value = "🔗 ទីតាំងតាមរយៈ Link ផែនទី";
+                currentCoordinates = urlString; 
+                document.getElementById('invLocation').value = "🔗 ទីតាំងតាមរយៈ Link ផែនទី";
             }
         }
 
+        // --- 🔐 ផ្នែកគ្រប់គ្រងសិទ្ធិ និងគណនី (Authentication & Role Permissions) ---
         function switchTab(type) {
             if(type === 'login') {
-                document.getElementById('loginForm').classList.remove('hidden'); document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('registerForm').classList.add('hidden');
                 document.getElementById('tabLoginBtn').className = "w-1/2 pb-2 text-center font-semibold border-b-2 border-indigo-500 text-indigo-600";
                 document.getElementById('tabRegisterBtn').className = "w-1/2 pb-2 text-center font-semibold text-gray-500 border-b-2 border-transparent";
             } else {
-                document.getElementById('loginForm').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden');
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
                 document.getElementById('tabLoginBtn').className = "w-1/2 pb-2 text-center font-semibold text-gray-500 border-b-2 border-transparent";
                 document.getElementById('tabRegisterBtn').className = "w-1/2 pb-2 text-center font-semibold border-b-2 border-green-500 text-green-600";
             }
@@ -610,14 +709,15 @@
             const u = document.getElementById('regUser').value.trim(); 
             const p = document.getElementById('regPass').value.trim();
             const role = document.getElementById('regRole').value;
-            if(!u || !p) return alert("សូមបំពេញព័ត៌មាន!");
+            if(!u || !p) return alert("សូមបំពេញព័ត៌មានឲ្យបានគ្រប់គ្រាន់!");
             
             let users = JSON.parse(localStorage.getItem('users_v2')) || {};
-            if(users[u]) return alert("ឈ្មោះនេះមានរួចហើយ!");
+            if(users[u]) return alert("ឈ្មោះគណនីនេះមានរួចហើយ!");
             
             users[u] = { password: p, role: role };
             localStorage.setItem('users_v2', JSON.stringify(users));
-            alert("✅ ចុះឈ្មោះគណនីជោគជ័យ ជាមួយតួនាទីជា " + role); switchTab('login');
+            alert("✅ ចុះឈ្មោះគណនីជោគជ័យ ជាមួយតួនាទីជា " + role);
+            switchTab('login');
         }
 
         function handleLogin() {
@@ -632,19 +732,19 @@
             }
 
             let users = JSON.parse(localStorage.getItem('users_v2')) || {};
-            if(users[u] && users[u].password === p) { 
+            if(users[u] && users[u].password === p) {
                 localStorage.setItem('currentUser', u);
                 localStorage.setItem('currentUserRole', users[u].role);
-                showSystem(u, users[u].role); 
-            } else { 
-                alert("❌ ឈ្មោះ ឬលេខសម្ងាត់មិនត្រឹមត្រូវ!"); 
+                showSystem(u, users[u].role);
+            } else {
+                alert("❌ ឈ្មោះអ្នកប្រើប្រាស់ ឬលេខសម្ងាត់មិនត្រឹមត្រូវទេ!");
             }
         }
 
         function handleLogout() {
             localStorage.removeItem('currentUser');
             localStorage.removeItem('currentUserRole');
-            document.getElementById('authSection').classList.remove('hidden'); 
+            document.getElementById('authSection').classList.remove('hidden');
             document.getElementById('mainSection').classList.add('hidden');
         }
 
@@ -656,6 +756,7 @@
             const badge = document.getElementById('currentUserRoleBadge');
 
             badge.innerText = role;
+
             if (role === 'Admin') {
                 badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800";
                 formContainer.classList.remove('hidden');
@@ -675,7 +776,7 @@
         }
 
         function showSystem(username, role) {
-            document.getElementById('authSection').classList.add('hidden'); 
+            document.getElementById('authSection').classList.add('hidden');
             document.getElementById('mainSection').classList.remove('hidden');
             document.getElementById('currentUserDisplay').innerText = username;
             
@@ -683,6 +784,7 @@
             fetchFromGoogleSheets();
         }
 
+        // --- 📑 ផ្នែកគ្រប់គ្រងប្រតិបត្តិការទិន្នន័យ (Invoices Operations) ---
         async function saveInvoice() {
             if (currentUserRole === 'Delivery') return alert("⚠️ អ្នកគ្មានសិទ្ធិបង្កើត ឬកែប្រែទិន្នន័យទេ!");
             const id = document.getElementById('invId').value.trim().toUpperCase();
@@ -695,50 +797,86 @@
             const status = document.getElementById('invStatus').value;
             const editIdx = document.getElementById('editIndex').value;
 
-            if(!id || !name) return alert("សូមបំពេញ លេខវិក្កយបត្រ និង ឈ្មោះអតិថិជន!");
+            if(!id || !name) return alert("សូមបំពេញលេខវិក្កយបត្រ និងឈ្មោះអតិថិជន!");
+
             let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
             const rightNow = new Date().toISOString();
 
             if (editIdx === "") {
                 if(invoices.some(inv => inv.id === id)) return alert("លេខកូដវិក្កយបត្រនេះមានរួចហើយ!");
-                invoices.push({id, name, phone, driver, amount, payment, issue, status, location: currentCoordinates, dateCreated: rightNow});
+                invoices.push({ id, name, phone, driver, amount, payment, issue, status, location: currentCoordinates, dateCreated: rightNow });
             } else {
                 const index = parseInt(editIdx);
-                invoices[index] = { ...invoices[index], id, name, phone, driver, amount, payment, issue, status, location: currentCoordinates !== "" ? currentCoordinates : invoices[index].location };
+                invoices[index] = {
+                    ...invoices[index],
+                    id, name, phone, driver, amount, payment, issue, status,
+                    location: currentCoordinates !== "" ? currentCoordinates : invoices[index].location
+                };
             }
-            localStorage.setItem('invoices', JSON.stringify(invoices)); resetForm(); renderInvoices();
+
+            localStorage.setItem('invoices', JSON.stringify(invoices));
+            resetForm();
+            renderInvoices();
             await syncToGoogleSheets('syncInvoices', invoices);
         }
 
         document.editInvoice = function(index) {
             if (currentUserRole === 'Delivery') return alert("⚠️ អ្នកគ្មានសិទ្ធិកែប្រែទិន្នន័យទេ!");
-            let invoices = JSON.parse(localStorage.getItem('invoices')) || []; const inv = invoices[index];
-            document.getElementById('formTitle').innerText = "✏️ កែប្រែព័ត៌មានអតិថិជន"; document.getElementById('editIndex').value = index;
-            document.getElementById('invId').value = inv.id; document.getElementById('custName').value = inv.name;
-            document.getElementById('custPhone').value = inv.phone || ''; document.getElementById('driverName').value = inv.driver || '';
-            document.getElementById('invAmount').value = inv.amount || 0; document.getElementById('payStatus').value = inv.payment;
-            document.getElementById('invIssue').value = inv.issue || ''; document.getElementById('invStatus').value = inv.status;
+            let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+            const inv = invoices[index];
+
+            document.getElementById('formTitle').innerText = "✏️ កែប្រែព័ត៌មានអតិថិជន";
+            document.getElementById('editIndex').value = index;
+            document.getElementById('invId').value = inv.id;
+            document.getElementById('custName').value = inv.name;
+            document.getElementById('custPhone').value = inv.phone || '';
+            document.getElementById('driverName').value = inv.driver || '';
+            document.getElementById('invAmount').value = inv.amount || 0;
+            document.getElementById('payStatus').value = inv.payment;
+            document.getElementById('invIssue').value = inv.issue || '';
+            document.getElementById('invStatus').value = inv.status;
             
             if(inv.location) {
                 currentCoordinates = inv.location;
-                if(inv.location.startsWith("http")) { document.getElementById('mapsLinkInput').value = inv.location; document.getElementById('invLocation').value = "🔗 ទីតាំងតាមរយៈ Link ផែនទី"; }
-                else { document.getElementById('mapsLinkInput').value = ""; document.getElementById('invLocation').value = inv.location; }
-            } else { currentCoordinates = ""; document.getElementById('mapsLinkInput').value = ""; document.getElementById('invLocation').value = ""; }
-            document.getElementById('btnSave').innerText = "🔄 ធ្វើបច្ចុប្បន្នភាព"; document.getElementById('btnCancel').classList.remove('hidden');
+                if(inv.location.startsWith("http")) {
+                    document.getElementById('mapsLinkInput').value = inv.location;
+                    document.getElementById('invLocation').value = "🔗 ទីតាំងតាមរយៈ Link ផែនទី";
+                } else {
+                    document.getElementById('mapsLinkInput').value = "";
+                    document.getElementById('invLocation').value = inv.location;
+                }
+            } else {
+                currentCoordinates = "";
+                document.getElementById('mapsLinkInput').value = "";
+                document.getElementById('invLocation').value = "";
+            }
+
+            document.getElementById('btnSave').innerText = "🔄 ធ្វើបច្ចុប្បន្នភាព";
+            document.getElementById('btnCancel').classList.remove('hidden');
         }
 
         function resetForm() {
-            document.getElementById('formTitle').innerText = "📝 បង្កើតទិន្នន័យអតិថិជនថ្មី"; document.getElementById('editIndex').value = "";
-            document.getElementById('invId').value = ''; document.getElementById('custName').value = ''; document.getElementById('custPhone').value = '';
-            document.getElementById('driverName').value = ''; document.getElementById('invAmount').value = '0.00'; document.getElementById('invIssue').value = '';
-            document.getElementById('invLocation').value = ''; document.getElementById('mapsLinkInput').value = ''; document.getElementById('searchMapQuery').value = '';
-            currentCoordinates = ""; document.getElementById('btnSave').innerText = "💾 រក្សាទុក"; document.getElementById('btnCancel').classList.add('hidden');
+            document.getElementById('formTitle').innerText = "📝 បង្កើតទិន្នន័យអតិថិជនថ្មី";
+            document.getElementById('editIndex').value = "";
+            document.getElementById('invId').value = '';
+            document.getElementById('custName').value = '';
+            document.getElementById('custPhone').value = '';
+            document.getElementById('driverName').value = '';
+            document.getElementById('invAmount').value = '0.00';
+            document.getElementById('invIssue').value = '';
+            document.getElementById('invLocation').value = '';
+            document.getElementById('mapsLinkInput').value = '';
+            document.getElementById('searchMapQuery').value = '';
+            currentCoordinates = "";
+            document.getElementById('btnSave').innerText = "💾 រក្សាទុក";
+            document.getElementById('btnCancel').classList.add('hidden');
         }
 
         document.togglePayment = async function(id, currentPayment) {
             let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
             invoices = invoices.map(inv => inv.id === id ? {...inv, payment: currentPayment === 'Paid' ? 'Unpaid' : 'Paid'} : inv);
-            localStorage.setItem('invoices', JSON.stringify(invoices)); renderInvoices();
+            localStorage.setItem('invoices', JSON.stringify(invoices));
+            renderInvoices();
             await syncToGoogleSheets('syncInvoices', invoices);
         }
 
@@ -750,21 +888,29 @@
             }
             let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
             invoices = invoices.map(inv => inv.id === id ? {...inv, status: newStatus} : inv);
-            localStorage.setItem('invoices', JSON.stringify(invoices)); renderInvoices();
+            localStorage.setItem('invoices', JSON.stringify(invoices));
+            renderInvoices();
             await syncToGoogleSheets('syncInvoices', invoices);
         }
 
+        // --- 🖥️ Render បង្ហាញទិន្នន័យក្នុងតារាង ---
         function renderInvoices() {
-            const filterStat = document.getElementById('filterStatus').value; 
+            const filterStat = document.getElementById('filterStatus').value;
             const search = document.getElementById('searchQuery').value.toLowerCase().trim();
-            const tbody = document.getElementById('invoiceTableBody'); 
+            const tbody = document.getElementById('invoiceTableBody');
             tbody.innerHTML = '';
             
             let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
 
             if(search !== "") {
-                invoices = invoices.filter(inv => inv.name.toLowerCase().includes(search) || inv.id.toLowerCase().includes(search) || (inv.phone && inv.phone.includes(search)) || (inv.driver && inv.driver.toLowerCase().includes(search)));
+                invoices = invoices.filter(inv => 
+                    inv.name.toLowerCase().includes(search) || 
+                    inv.id.toLowerCase().includes(search) ||
+                    (inv.phone && inv.phone.includes(search)) ||
+                    (inv.driver && inv.driver.toLowerCase().includes(search))
+                );
             }
+
             if(filterStat !== 'All') invoices = invoices.filter(inv => inv.status === filterStat);
             
             document.getElementById('totalInvoiceCount').innerText = invoices.length;
@@ -783,9 +929,9 @@
                 document.getElementById('btnNextPage').disabled = (currentPage === totalPages);
             }
 
-            if(invoices.length === 0) { 
-                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400">មិនមានទិន្នន័យអតិថិជនទេ។</td></tr>'; 
-                return; 
+            if(invoices.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400">មិនមានទិន្នន័យអតិថិជនទេ។</td></tr>';
+                return;
             }
 
             const startIndex = (currentPage - 1) * rowsPerPage;
@@ -802,7 +948,11 @@
                 else if(inv.status === 'Returned') { badgeDeliv = "bg-red-100 text-red-800"; statusText = "ភ្ញៀវបដិសេធ"; }
 
                 let badgePay = inv.payment === 'Paid' ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
-                let locationMarkup = inv.location ? `<a href="${inv.location.startsWith("http") ? inv.location : 'http://googleusercontent.com/maps.google.com/maps?q=' + inv.location}" target="_blank" class="inline-flex items-center gap-1 text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200 hover:underline">📍 បើកផែនទី</a>` : '<span class="text-xs text-gray-400">📍 គ្មានទីតាំង</span>';
+                
+                let locationMarkup = inv.location ? `
+                    <a href="${inv.location.startsWith("http") ? inv.location : 'https://www.google.com/maps/search/?api=1&query=' + inv.location}" target="_blank" class="inline-flex items-center gap-1 text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200 hover:underline">📍 បើកផែនទី</a>
+                ` : '<span class="text-xs text-gray-400">📍 គ្មានទីតាំង</span>';
+                
                 let issueMarkup = inv.issue ? '<p class="text-xs bg-red-50 text-red-700 p-1 rounded mt-1 border border-red-100">⚠️ ' + inv.issue + '</p>' : '';
                 let driverMarkup = inv.driver ? `<span class="text-xs font-semibold block text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100 w-fit mt-1">🛵 ${inv.driver}</span>` : '<span class="text-xs text-gray-400 block mt-1">❌ គ្មានអ្នកដឹក</span>';
 
@@ -824,7 +974,8 @@
                     `;
                 }
 
-                const tr = document.createElement('tr'); tr.className = "border-b hover:bg-gray-50";
+                const tr = document.createElement('tr');
+                tr.className = "border-b hover:bg-gray-50";
                 tr.innerHTML = `
                     <td class="p-3">
                         <div class="font-bold text-indigo-600">ID: ${inv.id}</div>
@@ -858,6 +1009,7 @@
             });
         }
 
+        // ពិនិត្យមើលគណនីពេលទំព័រដំបូងត្រូវបានបើក
         window.onload = function() { 
             const user = localStorage.getItem('currentUser'); 
             const role = localStorage.getItem('currentUserRole'); 
